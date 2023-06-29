@@ -1,0 +1,18 @@
+﻿@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+
+@page "/wizard"
+
+<div class="container">
+    @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
+    <button type="button" onclick="AssignQuestToPlayer" class="give-me-a-quest-button btn btn-primary">Give Me A Quest!</button>
+</div>
+
+@code {
+    private string selectedPerson;
+
+    override protected void OnInitialized()
+    {
+        selectedPerson = sessionStorage.GetItem<string>("person");
+        Console.WriteLine($"The Wizard recognizes you. Hello {selectedPerson}!");
+    }
+}

@@ -1,18 +1,85 @@
-﻿@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using QuestGiver.Shared.Models;
+
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject HttpClient http
 
 @page "/wizard"
 
 <div class="container">
+<h1>Hello, @name!</h1>
     @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
-    <button type="button" onclick="AssignQuestToPlayer" class="give-me-a-quest-button btn btn-primary">Give Me A Quest!</button>
 </div>
 
-@code {
-    private string selectedPerson;
-
-    override protected void OnInitialized()
+@if (currentUser != null)
+{
+    @if(currentUser.CurrentQuest != null)
     {
-        selectedPerson = sessionStorage.GetItem<string>("person");
-        Console.WriteLine($"The Wizard recognizes you. Hello {selectedPerson}!");
+        <div>
+            <p>Your current quest is @currentUser.CurrentQuest.Name</p>
+        </div>
+        
+        <div>
+            <button type="button" onclick="@CompleteCurrentQuest" class="give-me-a-quest-button btn btn-primary">Turn in Current Quest</button>
+        </div>
+        
+    }
+    else
+    {
+        <div>You do not have a current quest</div>
+        <button type="button" onclick="@AssignQuestToPlayer" class="give-me-a-quest-button btn btn-primary">Give Me A Quest!</button>
+    }
+}
+
+
+
+@code {
+    private IEnumerable<Assignee> assignees;
+    private IEnumerable<Quest> quests;
+    private string name;
+    private Assignee currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
+        name = sessionStorage.GetItem<string>("name");
+
+        if (assignees != null)
+        {
+            //WARNING: This will throw an exception if an assignee is not found
+            currentUser = assignees.Single(a => a.Name == name);
+
+            //NOTE: Don't really think  we need to be storing this right now if we have the name.
+            //sessionStorage.SetItem("Assignee", currentUser);
+        }
+
+        quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+    }
+
+    private void AssignQuestToPlayer()
+    {
+        var random = new Random();
+        var randomQuest = quests.ElementAt(random.Next(quests.Count()));
+
+        currentUser.CurrentQuest = randomQuest;
+
+        http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
+    }
+
+    private void CompleteCurrentQuest()
+    {
+        
+
+        //We know current quest is not null because the button is not visible if it is null
+        var quest = quests.Single(q => q.Id == currentUser.CurrentQuest!.Id);
+        quest.CompletedDate = DateTime.Now;
+        quest.IsCompleted = true;
+
+        http.PutAsJsonAsync($"api/quests/{quest.Id}", quest);
+
+        currentUser.CurrentQuest = null;
+
+        http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
     }
 }

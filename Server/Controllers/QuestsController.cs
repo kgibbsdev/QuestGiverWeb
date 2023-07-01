@@ -60,7 +60,11 @@ namespace QuestGiver.Server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(quest).State = EntityState.Modified;
+            var existingQuest = await _context.Quests.FindAsync(id);
+            existingQuest.CompletedDate = quest.CompletedDate;
+            existingQuest.IsCompleted = quest.IsCompleted;
+
+            _context.Quests.Update(existingQuest);
 
             try
             {

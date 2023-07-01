@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestGiver.Server.Data;
 
@@ -11,9 +12,11 @@ using QuestGiver.Server.Data;
 namespace QuestGiver.Server.Migrations
 {
     [DbContext(typeof(QuestGiverDbContext))]
-    partial class QuestGiverDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230701145836_MakeCurrentQuestIDNullable")]
+    partial class MakeCurrentQuestIDNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,9 +54,6 @@ namespace QuestGiver.Server.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CompletedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
@@ -123,6 +124,26 @@ namespace QuestGiver.Server.Controllers
         private bool QuestExists(int id)
         {
             return (_context.Quests?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        // POST: api/Quests/Complete
+        [HttpPost("complete")]
+        public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
+        {
+            var existingQuest = await _context.Quests.FindAsync(request.Quest.Id);
+            existingQuest.CompletedDate = request.Quest.CompletedDate;
+            existingQuest.IsCompleted = request.Quest.IsCompleted;
+
+            var existingAssignee = await _context.Assignees.FindAsync(request.Assignee.Id);
+            existingAssignee.CurrentQuestId = null;
+            existingAssignee.TotalExperience += existingQuest.ExperienceForCompletion;
+
+            _context.Quests.Update(existingQuest);
+            _context.Assignees.Update(existingAssignee);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

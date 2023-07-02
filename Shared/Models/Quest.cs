@@ -14,6 +14,7 @@ namespace QuestGiver.Shared.Models
 		public bool IsCompleted { get; set; }
 		public TimeSpan RefreshTime { get; set; }
 		public DateTime CompletedDate { get; set; }
+		public int ExperienceForCompletion { get; set; }
 
     public Quest(string name, string description, TimeSpan refreshTime, bool isCompleted)
 		{

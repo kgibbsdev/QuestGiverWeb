@@ -1,8 +1,11 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
 @using QuestGiver.Shared.Models;
+@using System.Text;
+@using System.Text.Json;
 
 @inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigationManager
 @inject HttpClient http
 
 @page "/wizard"
@@ -30,6 +33,10 @@
         <div>You do not have a current quest</div>
         <button type="button" onclick="@AssignQuestToPlayer" class="give-me-a-quest-button btn btn-primary">Give Me A Quest!</button>
     }
+
+    <div>
+        <p>Current XP: @currentUser.TotalExperience</p>
+    </div>
 }
 
 
@@ -67,19 +74,23 @@
         http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
     }
 
-    private void CompleteCurrentQuest()
+    private async void CompleteCurrentQuest()
     {
-        
-
         //We know current quest is not null because the button is not visible if it is null
         var quest = quests.Single(q => q.Id == currentUser.CurrentQuest!.Id);
         quest.CompletedDate = DateTime.Now;
         quest.IsCompleted = true;
 
-        http.PutAsJsonAsync($"api/quests/{quest.Id}", quest);
-
+        //http.PutAsJsonAsync($"api/quests/{quest.Id}", quest);
+        var request = new CompleteQuestRequest(quest, currentUser);
+        await http.PostAsJsonAsync($"api/quests/complete", request);
+        
         currentUser.CurrentQuest = null;
+        quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+        currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
+        
+        StateHasChanged();
 
-        http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
+      //http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
     }
 }

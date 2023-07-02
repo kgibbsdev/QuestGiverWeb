@@ -12,7 +12,8 @@ namespace QuestGiver.Shared.Models
 		public string Name { get; set; }
 		public int? CurrentQuestId { get; set; }
 		public Quest? CurrentQuest { get; set; }
-
+		public int TotalExperience { get; set; }
+		public int Level { get; set; }
 		public Assignee(string name)
 		{
 			Name = name;

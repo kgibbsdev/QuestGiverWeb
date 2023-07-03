@@ -17,6 +17,7 @@
 
 @if (currentUser != null)
 {
+  
     @if(currentUser.CurrentQuest != null)
     {
         <div>
@@ -26,7 +27,6 @@
         <div>
             <button type="button" onclick="@CompleteCurrentQuest" class="give-me-a-quest-button btn btn-primary">Turn in Current Quest</button>
         </div>
-        
     }
     else
     {
@@ -35,7 +35,9 @@
     }
 
     <div>
+        <p>Name: @currentUser.Name</p>
         <p>Current XP: @currentUser.TotalExperience</p>
+        <p>Current Level: @currentUser.Level</p>
     </div>
 }
 
@@ -64,14 +66,24 @@
         quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
     }
 
-    private void AssignQuestToPlayer()
+    private async void AssignQuestToPlayer()
     {
-        var random = new Random();
-        var randomQuest = quests.ElementAt(random.Next(quests.Count()));
+        var response = await http.PostAsJsonAsync($"api/quests/new", currentUser);
 
-        currentUser.CurrentQuest = randomQuest;
-
-        http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
+        //get the body from this response
+        var body = await response.Content.ReadAsStringAsync();
+        
+        //get the assignee from the body
+        try
+        {
+            currentUser = JsonSerializer.Deserialize<Assignee>(body);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        Console.WriteLine("body: " + body);
+        StateHasChanged();
     }
 
     private async void CompleteCurrentQuest()
@@ -81,7 +93,6 @@
         quest.CompletedDate = DateTime.Now;
         quest.IsCompleted = true;
 
-        //http.PutAsJsonAsync($"api/quests/{quest.Id}", quest);
         var request = new CompleteQuestRequest(quest, currentUser);
         await http.PostAsJsonAsync($"api/quests/complete", request);
         
@@ -90,7 +101,5 @@
         currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
         
         StateHasChanged();
-
-      //http.PutAsJsonAsync($"api/assignees/{currentUser.Id}", currentUser);
     }
 }

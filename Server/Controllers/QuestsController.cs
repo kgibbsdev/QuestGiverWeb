@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
 
@@ -130,6 +131,7 @@ namespace QuestGiver.Server.Controllers
         [HttpPost("complete")]
         public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
         {
+            //Do we need to get the quest and assignee from the database?
             var existingQuest = await _context.Quests.FindAsync(request.Quest.Id);
             existingQuest.CompletedDate = request.Quest.CompletedDate;
             existingQuest.IsCompleted = request.Quest.IsCompleted;
@@ -145,5 +147,43 @@ namespace QuestGiver.Server.Controllers
 
             return NoContent();
         }
+
+        // POST: api/Quests/New
+        [HttpPost("new")]
+        public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
+        {
+            var quests = await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
+            var assignableQuests = new List<Quest>();
+            
+            if(quests.Any(q => q.Priority == QuestPriority.High))
+            {
+                assignableQuests = quests.Where(q => q.Priority == QuestPriority.High).ToList();
+            }
+
+            if(quests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
+            {
+                assignableQuests = quests.Where(q => q.Priority == QuestPriority.Medium).ToList();
+            }
+
+            if(quests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
+            {
+                assignableQuests = quests.Where(q => q.Priority == QuestPriority.Low).ToList();
+            }
+
+            //pick a random quest from the assignable quests
+            var random = new Random();
+            var randomQuest = assignableQuests[random.Next(0, assignableQuests.Count)];
+
+            //assign the quest to the assignee
+            assignee.CurrentQuestId = randomQuest.Id;
+            assignee.CurrentQuest = randomQuest;
+
+            _context.Assignees.Update(assignee);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(assignee);
+        }
+        
     }
 }

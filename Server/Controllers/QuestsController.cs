@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
+using QuestGiver.Shared.Models.Requests;
 
 namespace QuestGiver.Server.Controllers
 {
@@ -182,8 +183,29 @@ namespace QuestGiver.Server.Controllers
 
             await _context.SaveChangesAsync();
 
+            //TODO: Need to handle the case where there are no quests to assign
             return Ok(assignee);
         }
+
+        // POST: api/Quests/Reset
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetQuests(bool hardReset)
+        {
+            var quests = await _context.Quests.ToListAsync();
+            var assignees = await _context.Assignees.ToListAsync();
+
+            foreach(var quest in quests)
+            {
+                quest.IsCompleted = false;
+                quest.CompletedDate = default;
+            }
+
+            _context.Quests.UpdateRange(quests);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }   
         
     }
 }

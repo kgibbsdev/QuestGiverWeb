@@ -14,11 +14,11 @@ namespace QuestGiver.Server.Data
 
 			var quests = new Quest[]
 			{
-				new Quest("Quest 1", "This is the first quest", new TimeSpan(8, 0, 0), false),
-				new Quest("Quest 2", "This is the second quest", new TimeSpan(8, 0, 0), false),
-				new Quest("Quest 3", "This is the third quest", new TimeSpan(8, 0, 0), false),
-				new Quest("Quest 4", "This is the fourth quest", new TimeSpan(8, 0, 0), false),
-				new Quest("Quest 5", "This is the fifth quest", new TimeSpan(8, 0, 0), false),
+				new Quest("Quest 1", "This is the first quest", 1, false),
+				new Quest("Quest 2", "This is the second quest", 1, false),
+				new Quest("Quest 3", "This is the third quest", 1, false),
+				new Quest("Quest 4", "This is the fourth quest", 1, false),
+				new Quest("Quest 5", "This is the fifth quest", 1, false),
 			};
 
 			var assignees = new Assignee[]

@@ -1,0 +1,42 @@
+﻿@using QuestGiver.Shared.Models;
+@inject HttpClient http
+
+@page "/quests"
+
+<h3>Quests</h3>
+
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Quests
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          @if(quests != null)
+          {
+            @foreach (var quest in quests)
+            {
+                <li class="list-group-item">
+                    <a href="@($"quests/{quest.Id}")">@quest.Name</a>
+                </li>
+            }
+          }
+          else{
+            <p>Loading...</p>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+@code {
+private IEnumerable<Quest> quests;
+
+  protected override async Task OnInitializedAsync()
+  {
+      quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+  }
+
+}

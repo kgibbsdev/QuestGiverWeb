@@ -14,7 +14,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link text-light" href="/">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link text-light" href="/">Home</a>
             </li>
             @if(selectedOption != null)
             {
@@ -23,7 +23,10 @@
                 </li>
             }
             <li class="nav-item active">
-                <a class="nav-link text-light" href="/debug">Debug <span class="sr-only">(current)</span></a>
+                <a class="nav-link text-light" href="/debug">Debug</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-light" href="/quests">Quests</a>
             </li>
         </ul>
         <div class="px-3">
@@ -47,4 +50,3 @@
         sessionStorage.SetItem("name", selectedOption);
     }
 }
-```

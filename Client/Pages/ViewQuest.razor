@@ -1,0 +1,61 @@
+﻿@using QuestGiver.Shared.Models;
+@inject HttpClient http
+
+@page "/quests/{Id}"
+
+
+@if(quest == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+  //inputs to edit quest properties
+  <h3>Quest Name</h3>
+  <input type="text" @bind-value="quest.Name"/>
+
+  <h3>Quest Description</h3>
+  <input type="text" @bind-value="quest.Description" />
+
+  <h3>Quest Complete?</h3>
+  <input type="checkbox" @bind-value="quest.IsCompleted" checked="@quest.IsCompleted"/>
+
+    <h3>Quest Priority</h3>
+  <input type="text" @bind-value="quest.Priority" />
+ 
+    @if (saving)
+    {
+        <button class="btn btn-success" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Saving...
+        </button>
+    }
+    else
+    {
+        //button to update quest
+        <button class="btn btn-success save-button" @onclick="UpdateQuest">Save</button>
+    }
+}
+
+
+@code {
+    private Quest? quest;
+    bool saving = false;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //get quest from server
+        quest = await http.GetFromJsonAsync<Quest>($"api/quests/{Id}");
+    }
+
+    private async Task UpdateQuest()
+    {
+        //send quest to server
+        saving = true;
+        await http.PutAsJsonAsync($"api/quests/{Id}", quest);
+        saving = false;
+    }
+}

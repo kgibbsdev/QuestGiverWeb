@@ -66,6 +66,11 @@ namespace QuestGiver.Server.Controllers
             var existingQuest = await _context.Quests.FindAsync(id);
             existingQuest.CompletedDate = quest.CompletedDate;
             existingQuest.IsCompleted = quest.IsCompleted;
+            existingQuest.Name = quest.Name;
+            existingQuest.Priority = quest.Priority;    
+            existingQuest.ExperienceForCompletion = quest.ExperienceForCompletion;
+            existingQuest.Description = quest.Description;
+            existingQuest.RefreshTimeInDays = quest.RefreshTimeInDays;
 
             _context.Quests.Update(existingQuest);
 

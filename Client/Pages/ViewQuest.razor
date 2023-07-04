@@ -1,5 +1,6 @@
 ﻿@using QuestGiver.Shared.Models;
 @inject HttpClient http
+@inject NavigationManager navigationManager
 
 @page "/quests/{Id}"
 
@@ -21,7 +22,15 @@ else
   <input type="checkbox" @bind-value="quest.IsCompleted" checked="@quest.IsCompleted"/>
 
     <h3>Quest Priority</h3>
-  <input type="text" @bind-value="quest.Priority" />
+
+    <select @bind="priority">
+        <option value="1">High</option>
+        <option value="2">Medium</option>
+        <option value="3">Low</option>
+    </select>
+  
+    <h3>Quest Refresh Time (Days)</h3>
+    <input type="number" @bind-value="quest.RefreshTimeInDays" />
  
     @if (saving)
     {
@@ -40,8 +49,8 @@ else
 
 @code {
     private Quest? quest;
-    bool saving = false;
-
+    private bool saving = false;
+    private int priority = 1;
     [Parameter]
     public string Id { get; set; }
 
@@ -49,13 +58,44 @@ else
     {
         //get quest from server
         quest = await http.GetFromJsonAsync<Quest>($"api/quests/{Id}");
+        priority = (int)quest.Priority;
     }
 
     private async Task UpdateQuest()
     {
+        quest.Priority = (QuestPriority)priority;
         //send quest to server
         saving = true;
         await http.PutAsJsonAsync($"api/quests/{Id}", quest);
         saving = false;
+        navigationManager.NavigateTo("/quests");
+    }
+
+    void SelectedPriorityChanged(ChangeEventArgs e)
+    {
+        //set quest priority
+        priority = int.Parse(e.Value.ToString());
+        switch (e.Value.ToString())
+        {
+          case "1":
+              quest.Priority = QuestPriority.High;
+              Console.WriteLine("High");
+              break;
+
+          case "2":
+            quest.Priority = QuestPriority.Medium;
+            Console.WriteLine("Medium");
+            break;
+
+          case "3":
+            quest.Priority = QuestPriority.Low;
+            Console.WriteLine("Low");
+            break;
+
+          default:
+            quest.Priority = QuestPriority.Medium;
+            Console.WriteLine("default");
+            break;
+        }
     }
 }

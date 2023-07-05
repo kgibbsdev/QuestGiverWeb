@@ -69,7 +69,7 @@
 
     private async void AssignQuestToPlayer()
     {
-        var response = await http.PostAsJsonAsync($"api/quests/new", currentUser);
+        var response = await http.PostAsJsonAsync($"api/quests/assign", currentUser);
 
         //get the body from this response
         var body = await response.Content.ReadAsStringAsync();

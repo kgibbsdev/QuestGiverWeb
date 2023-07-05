@@ -2,7 +2,7 @@
 @inject HttpClient http
 @inject NavigationManager navigationManager
 
-@page "/quests/{Id}"
+@page "/quests/new"
 
 
 @if(quest == null)
@@ -45,7 +45,7 @@ else
     else
     {
         //button to update quest
-        <button class="btn btn-success save-button" @onclick="UpdateQuest">Save</button>
+        <button class="btn btn-success save-button" @onclick="AddNewQuest">Save</button>
     }
 }
 
@@ -60,16 +60,15 @@ else
     protected override async Task OnInitializedAsync()
     {
         //get quest from server
-        quest = await http.GetFromJsonAsync<Quest>($"api/quests/{Id}");
-        priority = (int)quest.Priority;
+        quest = new Quest("", "", 1, false, 50);
     }
 
-    private async Task UpdateQuest()
+    private async Task AddNewQuest()
     {
         quest.Priority = (QuestPriority)priority;
         //send quest to server
         saving = true;
-        await http.PutAsJsonAsync($"api/quests/{Id}", quest);
+        await http.PostAsJsonAsync($"api/quests/new", quest);
         saving = false;
         navigationManager.NavigateTo("/quests");
     }

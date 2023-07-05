@@ -154,8 +154,8 @@ namespace QuestGiver.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Quests/New
-        [HttpPost("new")]
+        // POST: api/Quests/assign
+        [HttpPost("assign")]
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
             var quests = await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
@@ -210,7 +210,17 @@ namespace QuestGiver.Server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }   
-        
+        }
+
+        // POST: api/Quests/New
+        [HttpPost("new")]
+        public async Task<IActionResult> NewQuest([FromBody] Quest quest)
+        {
+            _context.Quests.Add(quest);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(quest);
+        }
     }
 }

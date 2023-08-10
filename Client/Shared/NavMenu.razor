@@ -5,43 +5,43 @@
 @inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
 @inject HttpClient http
 
-<nav class="navbar navbar-expand-lg navbar-light bg-info">
-    @*<a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>*@
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link text-light" href="/">Home</a>
-            </li>
-            @if(selectedOption != null)
-            {
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="/wizard">Wizard</a>
+<nav class="navbar navbar-expand-lg navbar-dark nav-bar-purple">
+        <div class="container">
+            <a class="navbar-brand" href="/">QuestGiver</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link text-light" href="/">Home</a>
                 </li>
-            }
-            <li class="nav-item active">
-                <a class="nav-link text-light" href="/debug">Debug</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link text-light" href="/quests">Quests</a>
-            </li>
-        </ul>
-        <div class="radio-container-parent">
-            <div class="radio-container-child">
-                <input type="radio" class="form-check-input" id="option1" name="options" value="CJ" checked="@("CJ" == selectedOption)" @onchange="HandlePersonSelection" />
-                <label for="option1">CJ</label>
+                @if (selectedOption != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/wizard">Wizard</a>
+                    </li>
+                }
+                <li class="nav-item active">
+                    <a class="nav-link text-light" href="/debug">Debug</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link text-light" href="/quests">Quests</a>
+                </li>
+            </ul>
+            <div class="radio-container-parent">
+                <div class="radio-container-child">
+                    <input type="radio" class="form-check-input" id="option1" name="options" value="CJ" checked="@("CJ" == selectedOption)" @onchange="HandlePersonSelection" />
+                    <label for="option1">CJ</label>
+                </div>
+                <div class="radio-container-child">
+                    <input type="radio" class="form-check-input" id="option2" name="options" value="Kyle" checked="@("Kyle" == selectedOption)" @onchange="HandlePersonSelection" />
+                    <label for="option2">Kyle</label>
+                </div>
             </div>
-            <div class="radio-container-child">
-                <input type="radio" class="form-check-input" id="option2" name="options" value="Kyle" checked="@("Kyle" == selectedOption)" @onchange="HandlePersonSelection" />
-                <label for="option2">Kyle</label>
             </div>
         </div>
-        
-    </div>
-</nav>
+    </nav>
 
 @code {
     private string selectedOption;

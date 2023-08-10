@@ -1,0 +1,25 @@
+﻿<!-- ProgressBar.razor -->
+
+<div class="progress">
+    <div class="progress-bar" style="width: @WidthPercentage%">
+        <span>@CurrentValue</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CurrentValue { get; set; }
+
+    [Parameter]
+    public int MaxValue { get; set; } = 100; // Default maximum value is 100
+
+    private int WidthPercentage
+    {
+        get
+        {
+            // Make sure the CurrentValue is within the range [1, MaxValue]
+            int clampedValue = Math.Clamp(CurrentValue, 1, MaxValue);
+            return (clampedValue * 100) / MaxValue;
+        }
+    }
+}

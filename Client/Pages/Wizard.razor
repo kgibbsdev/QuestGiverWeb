@@ -16,6 +16,16 @@
     @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
 </div>
 
+@if(currentUser != null)
+{
+    <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
+}
+
+
+
+
+
+
 @if (currentUser != null)
 {
   
@@ -50,21 +60,32 @@
     private string name;
     private Assignee currentUser;
 
+    private int progressValue = 0;
+    private int maxProgressValue = 10000;
+
     protected override async Task OnInitializedAsync()
     {
-        assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
-        name = sessionStorage.GetItem<string>("name");
-
-        if (assignees != null)
+        try
         {
-            //WARNING: This will throw an exception if an assignee is not found
-            currentUser = assignees.Single(a => a.Name == name);
+            assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
+            name = sessionStorage.GetItem<string>("name");
 
-            //NOTE: Don't really think  we need to be storing this right now if we have the name.
-            //sessionStorage.SetItem("Assignee", currentUser);
+            if (assignees != null)
+            {
+                //WARNING: This will throw an exception if an assignee is not found
+                currentUser = assignees.Single(a => a.Name == name);
+                progressValue = currentUser.TotalExperience;
+                //NOTE: Don't really think  we need to be storing this right now if we have the name.
+                //sessionStorage.SetItem("Assignee", currentUser);
+            }
+
+            quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
         }
 
-        quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
     }
 
     private async void AssignQuestToPlayer()
@@ -100,7 +121,7 @@
         currentUser.CurrentQuest = null;
         quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
-        
+
         StateHasChanged();
     }
 }

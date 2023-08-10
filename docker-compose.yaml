@@ -1,0 +1,12 @@
+version: "3.9" # optional since v1.27.0
+services:
+  blazor:
+    build: .
+    container_name: blazor_application
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT="Production"
+
+# docker-compose up -d to run the container
+# docker-compose down to stop the container

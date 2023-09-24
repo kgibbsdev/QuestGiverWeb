@@ -39,6 +39,10 @@ namespace QuestGiver.Shared.Models
         [JsonPropertyName("priority")]
         public QuestPriority Priority { get; set; }
 
+        [JsonPropertyName("timesCompleted")]
+        public int TimesCompleted { get; set; }
+        
+
         public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)
 	    {
 		    Name = name;

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestGiver.Server.Data;
 
@@ -11,9 +12,11 @@ using QuestGiver.Server.Data;
 namespace QuestGiver.Server.Migrations
 {
     [DbContext(typeof(QuestGiverDbContext))]
-    partial class QuestGiverDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230924155202_AddQuestsCompletedToAssignees")]
+    partial class AddQuestsCompletedToAssignees
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,10 +100,6 @@ namespace QuestGiver.Server.Migrations
                     b.Property<int>("RefreshTimeInDays")
                         .HasColumnType("int")
                         .HasAnnotation("Relational:JsonPropertyName", "refreshTimeInDays");
-
-                    b.Property<int>("TimesCompleted")
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "timesCompleted");
 
                     b.HasKey("Id");
 

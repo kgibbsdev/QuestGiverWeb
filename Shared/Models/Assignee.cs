@@ -27,7 +27,10 @@ namespace QuestGiver.Shared.Models
         [JsonPropertyName("level")]
         public int Level { get; set; }
 
-		public Assignee(string name)
+        [JsonPropertyName("questsCompleted")]
+        public int QuestsCompleted { get; set; }
+
+        public Assignee(string name)
 		{
 			Name = name;
 		}

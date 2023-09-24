@@ -141,10 +141,12 @@ namespace QuestGiver.Server.Controllers
             var existingQuest = await _context.Quests.FindAsync(request.Quest.Id);
             existingQuest.CompletedDate = request.Quest.CompletedDate;
             existingQuest.IsCompleted = request.Quest.IsCompleted;
+            existingQuest.TimesCompleted += 1;
 
             var existingAssignee = await _context.Assignees.FindAsync(request.Assignee.Id);
             existingAssignee.CurrentQuestId = null;
             existingAssignee.TotalExperience += existingQuest.ExperienceForCompletion;
+            existingAssignee.QuestsCompleted += 1;
 
             _context.Quests.Update(existingQuest);
             _context.Assignees.Update(existingAssignee);

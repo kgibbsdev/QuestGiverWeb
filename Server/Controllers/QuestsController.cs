@@ -198,6 +198,11 @@ namespace QuestGiver.Server.Controllers
         [HttpPost("reset")]
         public async Task<IActionResult> ResetQuests(bool hardReset)
         {
+
+#if !DEBUG
+            return NotFound();
+#endif
+
             var quests = await _context.Quests.ToListAsync();
             var assignees = await _context.Assignees.ToListAsync();
 
@@ -205,13 +210,14 @@ namespace QuestGiver.Server.Controllers
             {
                 quest.IsCompleted = false;
                 quest.CompletedDate = default;
+                quest.TimesCompleted = 0;
             }
 
             _context.Quests.UpdateRange(quests);
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Quests/New

@@ -11,8 +11,6 @@
 
 @page "/"
 
-<QuestGiver.Client.Components.Torch />
-
 @if (currentUser != null)
 {
     <div class="container">
@@ -50,7 +48,7 @@ else
         <p class="who-goes-there-text">WHO GOES THERE</p>
         <button type="button" onclick="@ChooseCJ" class="give-me-a-quest-button btn btn-primary">CJ</button
         <button type="button" onclick="@ChooseKyle" class="give-me-a-quest-button btn btn-primary">Kyle</button
-        </div>
+    </div>
 }
 
 @code {

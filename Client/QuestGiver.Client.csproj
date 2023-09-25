@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Components\Torch.razor.css" />
     <None Remove="Pages\ProgressBar.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Components\Torch.razor.css" />
     <Content Include="Pages\ProgressBar.razor.css" />
   </ItemGroup>
 

@@ -9,26 +9,19 @@
 @inject NavigationManager navigationManager
 @inject HttpClient http
 
-@page "/wizard"
+@page "/"
 
-<div class="container">
-<h1>Hello, @name!</h1>
-    @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
-</div>
-
-@if(currentUser != null)
-{
-    <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
-}
-
-
-
-
-
+<QuestGiver.Client.Components.Torch />
 
 @if (currentUser != null)
 {
-  
+    <div class="container">
+        <h1>Hello, @currentUser.Name!</h1>
+        @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
+    </div>
+
+    <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
+
     @if(currentUser.CurrentQuest != null)
     {
         <div>
@@ -51,13 +44,18 @@
         <p>Current Level: @currentUser.Level</p>
     </div>
 }
-
-
+else 
+{
+    <div>
+        <p class="who-goes-there-text">WHO GOES THERE</p>
+        <button type="button" onclick="@ChooseCJ" class="give-me-a-quest-button btn btn-primary">CJ</button
+        <button type="button" onclick="@ChooseKyle" class="give-me-a-quest-button btn btn-primary">Kyle</button
+        </div>
+}
 
 @code {
     private IEnumerable<Assignee> assignees;
     private IEnumerable<Quest> quests;
-    private string name;
     private Assignee currentUser;
 
     private int progressValue = 0;
@@ -68,17 +66,6 @@
         try
         {
             assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
-            name = sessionStorage.GetItem<string>("name");
-
-            if (assignees != null)
-            {
-                //WARNING: This will throw an exception if an assignee is not found
-                currentUser = assignees.Single(a => a.Name == name);
-                progressValue = currentUser.TotalExperience;
-                //NOTE: Don't really think  we need to be storing this right now if we have the name.
-                //sessionStorage.SetItem("Assignee", currentUser);
-            }
-
             quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         }
         catch(Exception ex)
@@ -86,6 +73,30 @@
             Console.WriteLine(ex);
         }
 
+    }
+
+    private async void ChooseCJ()
+    {
+        SetCurrentUser("CJ");
+    }
+
+    private async void ChooseKyle()
+    {
+        SetCurrentUser("Kyle");
+    }
+
+    private async void SetCurrentUser(string name)
+    {
+        if (assignees != null)
+        {
+            //WARNING: This will throw an exception if an assignee is not found
+            currentUser = assignees.Single(a => a.Name == name);
+            progressValue = currentUser.TotalExperience; 
+        }
+        else
+        {
+            Console.WriteLine("Assignees is null and caused 'SetCurrentUser' to fail!");
+        }
     }
 
     private async void AssignQuestToPlayer()

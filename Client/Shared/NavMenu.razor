@@ -14,31 +14,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link text-light" href="/">Home</a>
-                </li>
-                @if (selectedOption != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link text-light" href="/wizard">Wizard</a>
-                    </li>
-                }
-                <li class="nav-item active">
                     <a class="nav-link text-light" href="/debug">Debug</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link text-light" href="/quests">Quests</a>
                 </li>
             </ul>
-            <div class="radio-container-parent">
-                <div class="radio-container-child">
-                    <input type="radio" class="form-check-input" id="option1" name="options" value="CJ" checked="@("CJ" == selectedOption)" @onchange="HandlePersonSelection" />
-                    <label for="option1">CJ</label>
-                </div>
-                <div class="radio-container-child">
-                    <input type="radio" class="form-check-input" id="option2" name="options" value="Kyle" checked="@("Kyle" == selectedOption)" @onchange="HandlePersonSelection" />
-                    <label for="option2">Kyle</label>
-                </div>
-            </div>
             </div>
         </div>
     </nav>

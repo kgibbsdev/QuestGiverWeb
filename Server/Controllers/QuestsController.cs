@@ -161,19 +161,23 @@ namespace QuestGiver.Server.Controllers
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
             var quests = await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
+            var assignees = await _context.Assignees.ToListAsync();
+
             var assignableQuests = new List<Quest>();
+
+            var unassignedQuests = quests.Where(quests => assignees.All(assignee => assignee.CurrentQuestId != quests.Id)).ToList();
             
-            if(quests.Any(q => q.Priority == QuestPriority.High))
+            if(unassignedQuests.Any(q => q.Priority == QuestPriority.High))
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.High).ToList();
             }
 
-            if(quests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
+            if(unassignedQuests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.Medium).ToList();
             }
 
-            if(quests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
+            if(unassignedQuests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.Low).ToList();
             }
@@ -230,5 +234,28 @@ namespace QuestGiver.Server.Controllers
 
             return Ok(quest);
         }
+
+        public void StartupJobs()
+        {
+            var quests = _context.Quests.ToList();
+
+           //For each completed quest, check if it needs to be reset
+           foreach(var quest in quests.Where(q => q.IsCompleted))
+            {
+                var daysSinceCompletion = DateTime.Now.Subtract(quest.CompletedDate).Days;
+                if(daysSinceCompletion >= quest.RefreshTimeInDays)
+                {
+                    quest.IsCompleted = false;
+                    quest.CompletedDate = default;
+                }
+            }
+
+            _context.Quests.UpdateRange(quests);
+            _context.SaveChanges();
+        }
+
+
+    
+
     }
 }

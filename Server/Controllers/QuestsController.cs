@@ -160,12 +160,13 @@ namespace QuestGiver.Server.Controllers
         [HttpPost("assign")]
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
-            var quests = await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
-            var assignees = await _context.Assignees.ToListAsync();
+            var quests = _context.Quests.Where(q => q.IsCompleted == false).ToList();
+            var assignees = _context.Assignees.Where(a => a.Name != assignee.Name).ToList();
 
             var assignableQuests = new List<Quest>();
 
-            var unassignedQuests = quests.Where(quests => assignees.All(assignee => assignee.CurrentQuestId != quests.Id)).ToList();
+            //if a quest is already assigned to someone, don't include it in the assignable quests
+            var unassignedQuests = quests.Where(q => assignees.All(a => a.CurrentQuestId != q.Id)).ToList();
             
             if(unassignedQuests.Any(q => q.Priority == QuestPriority.High))
             {

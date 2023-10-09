@@ -63,8 +63,9 @@ else
     {
         try
         {
-            assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
-            quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+          currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
+          assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
+          quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         }
         catch(Exception ex)
         {
@@ -90,7 +91,7 @@ else
             //WARNING: This will throw an exception if an assignee is not found
             currentUser = assignees.Single(a => a.Name == name);
             progressValue = currentUser.TotalExperience; 
-            sessionStorage.SetItem("name", name.ToLower());
+            sessionStorage.SetItem("CurrentUser", currentUser);
         }
         else
         {

@@ -57,7 +57,7 @@ else
     private Quest? quest;
     private bool saving = false;
     private int priority = 1;
-    private string? currentUser;
+    private Assignee? currentUser;
     [Parameter]
     public string Id { get; set; }
 
@@ -65,7 +65,7 @@ else
     {
         //get quest from server
         quest = await http.GetFromJsonAsync<Quest>($"api/quests/{Id}");
-        currentUser = sessionStorage.GetItem<string>("name");
+        currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
         priority = (int)quest.Priority;
     }
 
@@ -108,7 +108,7 @@ else
 
     private async Task AssignThisQuestToMe()
     {
-        await http.PostAsJsonAsync($"api/quests/AssignThisQuestToMe/Kyle", quest);
+        await http.PostAsJsonAsync($"api/quests/AssignThisQuestToMe/{currentUser.Name}", quest);
         navigationManager.NavigateTo("/");
     }
 }

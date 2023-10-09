@@ -161,6 +161,8 @@ namespace QuestGiver.Server.Controllers
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
             var quests = _context.Quests.Where(q => q.IsCompleted == false).ToList();
+            
+            //Cannot track more than one instance of the same assignee
             var assignees = _context.Assignees.Where(a => a.Name != assignee.Name).ToList();
 
             var assignableQuests = new List<Quest>();
@@ -197,6 +199,25 @@ namespace QuestGiver.Server.Controllers
 
             //TODO: Need to handle the case where there are no quests to assign
             return Ok(assignee);
+        }
+
+        // POST: api/AssignThisQuestToMe/kyle
+        [Route("AssignThisQuestToMe/{name}")]
+        [HttpPost]
+        public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute]string name)
+        {
+            Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
+            if (assignee != null) {
+                assignee.CurrentQuestId = quest.Id;
+                _context.Assignees.Update(assignee);
+                await _context.SaveChangesAsync();
+                return Ok(assignee);
+            }
+            else 
+            {
+                Console.WriteLine($"User with the name {name} was not found!");
+                return NotFound($"User with the name {name} was not found!");
+            }
         }
 
         // POST: api/Quests/Reset

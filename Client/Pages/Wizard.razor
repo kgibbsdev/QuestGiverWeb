@@ -90,6 +90,7 @@ else
             //WARNING: This will throw an exception if an assignee is not found
             currentUser = assignees.Single(a => a.Name == name);
             progressValue = currentUser.TotalExperience; 
+            sessionStorage.SetItem("name", name.ToLower());
         }
         else
         {

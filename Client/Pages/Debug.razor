@@ -1,14 +1,22 @@
 ﻿@inject HttpClient http
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigationManager
 
 @page "/debug"
 
 <h3>Debug</h3>
 @*Add button that calls API route to reset all quests*@
 <button class="btn btn-primary" @onclick="ResetQuests">Reset Quests</button>
+<button class="btn btn-primary" @onclick="Logout">Logout</button>
 
 @code {
     private async Task ResetQuests()
     {
         await http.PostAsJsonAsync("api/Quests/reset", true);
+    }
+    private async Task Logout()
+    {
+        sessionStorage.RemoveItem("CurrentUser");
+        navigationManager.NavigateTo("/");
     }
 }

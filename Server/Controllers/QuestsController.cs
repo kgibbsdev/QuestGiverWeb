@@ -257,6 +257,14 @@ namespace QuestGiver.Server.Controllers
             return Ok(quest);
         }
 
+        // POST: api/Quests/Startup
+        [HttpPost("startup")]
+        public async Task<IActionResult> Startup()
+        {
+            StartupJobs();
+            return Ok();
+        }
+
         public void StartupJobs()
         {
             var quests = _context.Quests.ToList();

@@ -6,14 +6,18 @@ using System.Web;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Json;
+using QuestGiver.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<StartupService>();
 builder.Services.AddDbContext<QuestGiverDbContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("QuestGiverDBConnection")));
 
+builder.Services.AddSingleton<StartupService>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -46,5 +50,4 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
-
 app.Run();

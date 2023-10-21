@@ -28,6 +28,7 @@
         
         <div>
             <button type="button" onclick="@CompleteCurrentQuest" class="give-me-a-quest-button btn btn-primary">Turn in Current Quest</button>
+             <button type="button" onclick="@AbandonCurrentQuest" class="give-me-a-quest-button btn btn-primary">Abandon Quest</button>
         </div>
     }
     else
@@ -63,9 +64,9 @@ else
     {
         try
         {
-          currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
-          assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
-          quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+            currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
+            assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
+            quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         }
         catch(Exception ex)
         {
@@ -105,11 +106,12 @@ else
 
         //get the body from this response
         var body = await response.Content.ReadAsStringAsync();
-        
+
         //get the assignee from the body
         try
         {
             currentUser = JsonSerializer.Deserialize<Assignee>(body);
+sessionStorage.SetItem("CurrentUser", currentUser);
         }
         catch (Exception e)
         {
@@ -128,11 +130,26 @@ else
 
         var request = new CompleteQuestRequest(quest, currentUser);
         await http.PostAsJsonAsync($"api/quests/complete", request);
-        
+
         currentUser.CurrentQuest = null;
         quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
 
         StateHasChanged();
+    }
+
+    private async void AbandonCurrentQuest()
+    {
+        currentUser.CurrentQuest = null;
+        currentUser.CurrentQuestId = null;
+
+         var response = await http.PutAsJsonAsync<Assignee>($"api/assignees/{currentUser.Id}", currentUser);
+
+        if(response.IsSuccessStatusCode)
+        {
+           currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
+           sessionStorage.SetItem("CurrentUser", currentUser);
+           StateHasChanged();
+        }
     }
 }

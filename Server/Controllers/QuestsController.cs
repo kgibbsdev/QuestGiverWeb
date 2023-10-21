@@ -28,10 +28,10 @@ namespace QuestGiver.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Quest>>> GetQuests()
         {
-          if (_context.Quests == null)
-          {
-              return NotFound();
-          }
+            if (_context.Quests == null)
+            {
+                return NotFound();
+            }
             return await _context.Quests.ToListAsync();
         }
 
@@ -39,10 +39,10 @@ namespace QuestGiver.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Quest>> GetQuest(int id)
         {
-          if (_context.Quests == null)
-          {
-              return NotFound();
-          }
+            if (_context.Quests == null)
+            {
+                return NotFound();
+            }
             var quest = await _context.Quests.FindAsync(id);
 
             if (quest == null)
@@ -67,7 +67,7 @@ namespace QuestGiver.Server.Controllers
             existingQuest.CompletedDate = quest.CompletedDate;
             existingQuest.IsCompleted = quest.IsCompleted;
             existingQuest.Name = quest.Name;
-            existingQuest.Priority = quest.Priority;    
+            existingQuest.Priority = quest.Priority;
             existingQuest.ExperienceForCompletion = quest.ExperienceForCompletion;
             existingQuest.Description = quest.Description;
             existingQuest.RefreshTimeInDays = quest.RefreshTimeInDays;
@@ -98,10 +98,10 @@ namespace QuestGiver.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Quest>> PostQuest(Quest quest)
         {
-          if (_context.Quests == null)
-          {
-              return Problem("Entity set 'QuestGiverDbContext.Quests'  is null.");
-          }
+            if (_context.Quests == null)
+            {
+                return Problem("Entity set 'QuestGiverDbContext.Quests'  is null.");
+            }
             _context.Quests.Add(quest);
             await _context.SaveChangesAsync();
 
@@ -161,7 +161,7 @@ namespace QuestGiver.Server.Controllers
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
             var quests = _context.Quests.Where(q => q.IsCompleted == false).ToList();
-            
+
             //Cannot track more than one instance of the same assignee
             var assignees = _context.Assignees.Where(a => a.Name != assignee.Name).ToList();
 
@@ -169,18 +169,18 @@ namespace QuestGiver.Server.Controllers
 
             //if a quest is already assigned to someone, don't include it in the assignable quests
             var unassignedQuests = quests.Where(q => assignees.All(a => a.CurrentQuestId != q.Id)).ToList();
-            
-            if(unassignedQuests.Any(q => q.Priority == QuestPriority.High))
+
+            if (unassignedQuests.Any(q => q.Priority == QuestPriority.High))
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.High).ToList();
             }
 
-            if(unassignedQuests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
+            if (unassignedQuests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.Medium).ToList();
             }
 
-            if(unassignedQuests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
+            if (unassignedQuests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
             {
                 assignableQuests = quests.Where(q => q.Priority == QuestPriority.Low).ToList();
             }
@@ -204,7 +204,7 @@ namespace QuestGiver.Server.Controllers
         // POST: api/AssignThisQuestToMe/kyle
         [Route("AssignThisQuestToMe/{name}")]
         [HttpPost]
-        public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute]string name)
+        public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute] string name)
         {
             Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
             if (assignee != null) {
@@ -213,7 +213,7 @@ namespace QuestGiver.Server.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(assignee);
             }
-            else 
+            else
             {
                 Console.WriteLine($"User with the name {name} was not found!");
                 return NotFound($"User with the name {name} was not found!");
@@ -232,7 +232,7 @@ namespace QuestGiver.Server.Controllers
             var quests = await _context.Quests.ToListAsync();
             var assignees = await _context.Assignees.ToListAsync();
 
-            foreach(var quest in quests)
+            foreach (var quest in quests)
             {
                 quest.IsCompleted = false;
                 quest.CompletedDate = default;

@@ -45,9 +45,9 @@ namespace QuestGiver.Server
                 {
                     #if DEBUG
                     response = await client.PostAsync("http://localhost:5124/api/Quests/Startup", null);
-                    #else
-                    response = await client.PostAsync("https:/localhost:8080/api/Quests/Startup", null);
-                    #endif 
+#else
+                    response = await client.PostAsync("http://host.docker.internal:8080/api/Quests/Startup", null);
+#endif
                     if (response.IsSuccessStatusCode)
                     {
                         // Handle successful response if necessary

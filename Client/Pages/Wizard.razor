@@ -64,7 +64,7 @@ else
     {
         try
         {
-            currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
+            //currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
             assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
             quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         }
@@ -92,7 +92,7 @@ else
             //WARNING: This will throw an exception if an assignee is not found
             currentUser = assignees.Single(a => a.Name == name);
             progressValue = currentUser.TotalExperience; 
-            sessionStorage.SetItem("CurrentUser", currentUser);
+            //sessionStorage.SetItem("CurrentUser", currentUser);
         }
         else
         {
@@ -111,7 +111,7 @@ else
         try
         {
             currentUser = JsonSerializer.Deserialize<Assignee>(body);
-sessionStorage.SetItem("CurrentUser", currentUser);
+            //sessionStorage.SetItem("CurrentUser", currentUser);
         }
         catch (Exception e)
         {
@@ -148,7 +148,7 @@ sessionStorage.SetItem("CurrentUser", currentUser);
         if(response.IsSuccessStatusCode)
         {
            currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
-           sessionStorage.SetItem("CurrentUser", currentUser);
+           //sessionStorage.SetItem("CurrentUser", currentUser);
            StateHasChanged();
         }
     }

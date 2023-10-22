@@ -16,6 +16,7 @@ namespace QuestGiver.Shared.Classes.Utility
         }
         private static Dictionary<int, int> InitLevelList()
         {
+            //Sheet: https://docs.google.com/spreadsheets/d/10KfFQnJeBR9OxjmC0g2SIfghLot2xVLj77clQ6GA9t8/edit#gid=0
             //formula = (level/x)^y
             var x = 0.2;
             var y = 2;

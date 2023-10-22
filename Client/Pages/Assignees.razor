@@ -1,0 +1,42 @@
+﻿@using QuestGiver.Shared.Models;
+@inject HttpClient http
+
+@page "/stats"
+
+<h3>Assignees</h3>
+<span><a href="assignees/new">Add New Person</a></span>
+
+@if(assignees != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Experience</th>
+                <th>Completed Quests</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var assignee in assignees)
+            {
+                <tr>
+                    <td>@assignee.Name</td>
+                    <td>@assignee.Level</td>
+                    <td>@assignee.TotalExperience</td>
+                    <td>@assignee.QuestsCompleted</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private IEnumerable<Assignee> assignees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        assignees = await http.GetFromJsonAsync<IEnumerable<Assignee>>("api/assignees");
+    }
+}

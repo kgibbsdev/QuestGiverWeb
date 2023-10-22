@@ -139,6 +139,17 @@ namespace QuestGiver.Server.Controllers
             return NoContent();
         }
 
+        // POST: api/Assignees/New
+        [HttpPost("new")]
+        public async Task<IActionResult> NewAssignee([FromBody] Assignee assignee)
+        {
+            _context.Assignees.Add(assignee);
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         private bool AssigneeExists(int id)
         {
             return (_context.Assignees?.Any(e => e.Id == id)).GetValueOrDefault();

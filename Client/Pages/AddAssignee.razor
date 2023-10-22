@@ -1,0 +1,54 @@
+﻿@using QuestGiver.Shared.Models;
+@inject NavigationManager navigationManager
+@inject HttpClient http
+
+@page "/assignees/new"
+
+<h3>AddAssignee</h3>
+
+@if(assignee == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h3>Quest Name</h3>
+    <input type="text" @bind-value="assignee.Name" />
+
+    @if (saving)
+    {
+        <button class="btn btn-success" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Saving...
+        </button>
+    }
+    else
+    {
+        //button to update quest
+        <button class="btn btn-success save-button" @onclick="AddNewAssignee">Save</button>
+    }
+}
+
+@code {
+    private Assignee? assignee;
+    private bool saving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //get quest from server
+        assignee = new Assignee("name");
+    }
+
+    private async Task AddNewAssignee()
+    {
+        //send quest to server
+        saving = true;
+        var response = await http.PostAsJsonAsync($"api/assignees/new", assignee);
+        saving = false;
+
+        if(response.IsSuccessStatusCode)
+        {
+            navigationManager.NavigateTo("/stats");
+        }
+    }
+}

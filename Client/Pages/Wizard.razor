@@ -4,6 +4,7 @@
 @using QuestGiver.Shared.Models.Requests;
 @using System.Text;
 @using System.Text.Json;
+@using Microsoft.AspNetCore.Components;
 
 @inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
 @inject NavigationManager navigationManager
@@ -50,13 +51,22 @@
 }
 else
 {
-    <section class="login-section">
-        <p class="who-goes-there-text">WHO GOES THERE</p>
-        <div class="login-buttons">
-            <button type="button" @onclick="@ChooseCJ" class="btn btn-primary">CJ</button>
-            <button type="button" @onclick="@ChooseKyle" class="btn btn-primary">Kyle</button>
-        </div>
-    </section>
+    if(assignees != null)
+    {
+        <section class="login-section">
+            <p class="who-goes-there-text">WHO GOES THERE</p>
+            <div class="login-buttons">
+                @foreach (var assignee in assignees)
+                {
+                    <button type="button" @onclick="@(() => SetCurrentUser(assignee.Name))" class="btn btn-primary">@assignee.Name</button>
+                }
+            </div>
+        </section>
+    }
+    else
+    {
+        <p><em>Loading...</em></p>
+    }
 }
 
 @code {
@@ -79,25 +89,16 @@ else
         {
             Console.WriteLine(ex);
         }
-
-    }
-
-    private async void ChooseCJ()
-    {
-        SetCurrentUser("CJ");
-    }
-
-    private async void ChooseKyle()
-    {
-        SetCurrentUser("Kyle");
     }
 
     private async void SetCurrentUser(string name)
     {
+        Console.WriteLine("In SetCurrentUser");
         if (assignees != null)
         {
             //WARNING: This will throw an exception if an assignee is not found
-            currentUser = assignees.Single(a => a.Name == name);
+            currentUser = assignees.Single(a => a.Name.ToLower() == name.ToLower());
+            Console.WriteLine(currentUser.Name);
             progressValue = currentUser.TotalExperience; 
             //sessionStorage.SetItem("CurrentUser", currentUser);
         }

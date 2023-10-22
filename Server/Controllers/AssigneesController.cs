@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
+using QuestGiver.Shared.Classes.Utility;
 
 namespace QuestGiver.Server.Controllers
 {

@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
 using QuestGiver.Shared.Models.Requests;
+using QuestGiver.Shared.Classes.Utility;
 
 namespace QuestGiver.Server.Controllers
 {
@@ -146,8 +147,8 @@ namespace QuestGiver.Server.Controllers
             var existingAssignee = await _context.Assignees.FindAsync(request.Assignee.Id);
             existingAssignee.CurrentQuestId = null;
             existingAssignee.TotalExperience += existingQuest.ExperienceForCompletion;
+            existingAssignee.Level = LevelCalculator.CalculateLevel(existingAssignee.TotalExperience);
             existingAssignee.QuestsCompleted += 1;
-
             _context.Quests.Update(existingQuest);
             _context.Assignees.Update(existingAssignee);
 
@@ -283,9 +284,5 @@ namespace QuestGiver.Server.Controllers
             _context.Quests.UpdateRange(quests);
             _context.SaveChanges();
         }
-
-
-    
-
     }
 }

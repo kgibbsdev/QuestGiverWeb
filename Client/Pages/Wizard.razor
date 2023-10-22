@@ -5,7 +5,7 @@
 @using System.Text;
 @using System.Text.Json;
 @using Microsoft.AspNetCore.Components;
-
+@using QuestGiver.Shared.Classes.Utility;
 @inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
 @inject NavigationManager navigationManager
 @inject HttpClient http
@@ -19,7 +19,7 @@
             <h1>Hello, @currentUser.Name!</h1>
         </header>
 
-        <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
+        <ProgressBar CurrentValue="@progressValue" MaxValue="maxProgressValue" />
 
         <article class="quest-section">
             @if (currentUser.CurrentQuest != null)
@@ -99,7 +99,8 @@ else
             //WARNING: This will throw an exception if an assignee is not found
             currentUser = assignees.Single(a => a.Name.ToLower() == name.ToLower());
             Console.WriteLine(currentUser.Name);
-            progressValue = currentUser.TotalExperience; 
+            progressValue = currentUser.TotalExperience - LevelCalculator._levelToExp[currentUser.Level];
+            maxProgressValue = LevelCalculator._levelToExp[currentUser.Level + 1] - LevelCalculator._levelToExp[currentUser.Level];
             //sessionStorage.SetItem("CurrentUser", currentUser);
         }
         else
@@ -142,6 +143,9 @@ else
         currentUser.CurrentQuest = null;
         quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
         currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
+
+        progressValue = currentUser.TotalExperience - LevelCalculator._levelToExp[currentUser.Level];
+        maxProgressValue = LevelCalculator._levelToExp[currentUser.Level + 1] - LevelCalculator._levelToExp[currentUser.Level];
 
         StateHasChanged();
     }

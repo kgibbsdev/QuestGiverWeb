@@ -8,7 +8,7 @@ namespace QuestGiver.Shared.Classes.Utility
 {
     public static class LevelCalculator
     {
-        static Dictionary<int, int> _levelToExp;
+        public static Dictionary<int, int> _levelToExp;
         static LevelCalculator() 
         {
             _levelToExp = InitLevelList();

@@ -13,43 +13,50 @@
 
 @if (currentUser != null)
 {
-    <div class="container">
-        <h1>Hello, @currentUser.Name!</h1>
-        @*<img class="wizard" src="https://img.freepik.com/premium-vector/cartoon-old-wizard-cartoon-old-wizard-holding-wand_70172-2554.jpg?w=2000" />*@
-    </div>
+    <section class="profile-section">
+        <header class="profile-header">
+            <h1>Hello, @currentUser.Name!</h1>
+        </header>
 
-    <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
+        <ProgressBar CurrentValue="currentUser.TotalExperience" MaxValue="maxProgressValue" />
 
-    @if(currentUser.CurrentQuest != null)
-    {
-        <div>
-            <p>Your current quest is @currentUser.CurrentQuest.Name</p>
-        </div>
-        
-        <div>
-            <button type="button" onclick="@CompleteCurrentQuest" class="give-me-a-quest-button btn btn-primary">Turn in Current Quest</button>
-             <button type="button" onclick="@AbandonCurrentQuest" class="give-me-a-quest-button btn btn-primary">Abandon Quest</button>
-        </div>
-    }
-    else
-    {
-        <div>You do not have a current quest</div>
-        <button type="button" onclick="@AssignQuestToPlayer" class="give-me-a-quest-button btn btn-primary">Give Me A Quest!</button>
-    }
+        <article class="quest-section">
+            @if (currentUser.CurrentQuest != null)
+            {
+                <div class="quest-info">
+                    <p>Your current quest is @currentUser.CurrentQuest.Name</p>
+                </div>
 
-    <div>
-        <p>Name: @currentUser.Name</p>
-        <p>Current XP: @currentUser.TotalExperience</p>
-        <p>Current Level: @currentUser.Level</p>
-    </div>
+                <div class="quest-actions">
+                    <button type="button" @onclick="@CompleteCurrentQuest" class="btn btn-primary">Turn in Current Quest</button>
+                    <button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button>
+                </div>
+            }
+            else
+            {
+                <div class="no-quest-info">
+                    You do not have a current quest
+                </div>
+                <button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me A Quest!</button>
+            }
+        </article>
+
+        <footer class="profile-footer">
+            <p>Name: @currentUser.Name</p>
+            <p>Current XP: @currentUser.TotalExperience</p>
+            <p>Current Level: @currentUser.Level</p>
+        </footer>
+    </section>
 }
-else 
+else
 {
-    <div>
+    <section class="login-section">
         <p class="who-goes-there-text">WHO GOES THERE</p>
-        <button type="button" onclick="@ChooseCJ" class="give-me-a-quest-button btn btn-primary">CJ</button
-        <button type="button" onclick="@ChooseKyle" class="give-me-a-quest-button btn btn-primary">Kyle</button
-    </div>
+        <div class="login-buttons">
+            <button type="button" @onclick="@ChooseCJ" class="btn btn-primary">CJ</button>
+            <button type="button" @onclick="@ChooseKyle" class="btn btn-primary">Kyle</button>
+        </div>
+    </section>
 }
 
 @code {

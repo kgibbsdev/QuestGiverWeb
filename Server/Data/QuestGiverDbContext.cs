@@ -17,6 +17,7 @@ namespace QuestGiver.Server.Data
     {
       modelBuilder.Entity<Quest>().ToTable("Quests");
       modelBuilder.Entity<Assignee>().ToTable("Assignees");
-    }
+      modelBuilder.Entity<QuestLog>().ToTable("QuestLogs");
+      }
   }
 }

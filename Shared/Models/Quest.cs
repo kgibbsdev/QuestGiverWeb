@@ -41,6 +41,7 @@ namespace QuestGiver.Shared.Models
 
         [JsonPropertyName("timesCompleted")]
         public int TimesCompleted { get; set; }
+        public int? QuestLogId { get; set; }
         
 
         public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)

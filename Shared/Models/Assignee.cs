@@ -29,6 +29,8 @@ namespace QuestGiver.Shared.Models
 
         [JsonPropertyName("questsCompleted")]
         public int QuestsCompleted { get; set; }
+        public int? QuestLogId { get; set; }
+        public QuestLog? QuestLog { get; set; }
 
         public Assignee(string name)
 		{

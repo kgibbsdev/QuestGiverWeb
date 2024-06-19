@@ -48,6 +48,14 @@
 			<p>Current Level: @_currentUser.Level</p>
 		</footer>
 	</section>
+
+	<section class="quests-ui-section">
+		@foreach(var quest in _currentUser.QuestLog.Quests)
+		{
+			<QuestGiver.Client.Components.QuestLogQuest quest="@quest" />
+		}		
+	</section>
+	
 }
 else
 {

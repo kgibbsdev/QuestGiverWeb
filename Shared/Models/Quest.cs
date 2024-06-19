@@ -9,57 +9,66 @@ using System.Threading.Tasks;
 namespace QuestGiver.Shared.Models
 {
 	public enum QuestPriority
-    {
-        High=1,
-        Medium=2,
-        Low=3
-    }
+	{
+		High=1,
+		Medium=2,
+		Low=3
+	}
 
 	public class Quest
 	{
-        [Key]
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-        
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-        
-        [JsonPropertyName("isCompleted")]
-        public bool IsCompleted { get; set; }
-        
-        [JsonPropertyName("refreshTimeInDays")]
-        public int RefreshTimeInDays { get; set; }
-        
-        [JsonPropertyName("completedDate")]
-        public DateTime CompletedDate { get; set; }
+		[Key]
+		[JsonPropertyName("id")]
+		public int Id { get; set; }
+		
+		[JsonPropertyName("name")]
+		public string Name { get; set; }
+		
+		[JsonPropertyName("description")]
+		public string Description { get; set; }
+		
+		[JsonPropertyName("isCompleted")]
+		public bool IsCompleted { get; set; }
+		
+		[JsonPropertyName("refreshTimeInDays")]
+		public int RefreshTimeInDays { get; set; }
+		
+		[JsonPropertyName("completedDate")]
+		public DateTime CompletedDate { get; set; }
 
-        [JsonPropertyName("experienceForCompletion")]
-        public int ExperienceForCompletion { get; set; }
+		[JsonPropertyName("experienceForCompletion")]
+		public int ExperienceForCompletion { get; set; }
 
-        [JsonPropertyName("priority")]
-        public QuestPriority Priority { get; set; }
+		[JsonPropertyName("priority")]
+		public QuestPriority Priority { get; set; }
 
-        [JsonPropertyName("timesCompleted")]
-        public int TimesCompleted { get; set; }
+		[JsonPropertyName("timesCompleted")]
+		public int TimesCompleted { get; set; }
 
-        [ForeignKey("QuestLog")]
-        [JsonPropertyName("questLogId")]
-        public int? QuestLogId { get; set; }
+		[ForeignKey("QuestLog")]
+		[JsonPropertyName("questLogId")]
+		public int? QuestLogId { get; set; }
 
-        [JsonPropertyNameAttribute("isAssigned")]
-        public bool IsAssigned { get; set; }
-        
+		[JsonPropertyNameAttribute("isAssigned")]
+		public bool IsAssigned { get; set; }
+		
+		[JsonConstructorAttribute]
+		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)
+		{
+			Name = name;
+			Description = description;
+			RefreshTimeInDays = refreshTimeInDays;
+			IsCompleted = isCompleted;
+			ExperienceForCompletion = experienceForCompletion;
+		}
 
-        public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)
-	    {
-		    Name = name;
-		    Description = description;
-            RefreshTimeInDays = refreshTimeInDays;
-		    IsCompleted = isCompleted;
-            ExperienceForCompletion = experienceForCompletion;
-	    }
+		public Quest(string name)
+		{
+			Name = name;
+			Description = "Default description";
+			RefreshTimeInDays = 1;
+			IsCompleted = false;
+			ExperienceForCompletion = 0;
+		}
 	}
 }

@@ -1,0 +1,25 @@
+﻿@using QuestGiver.Shared.Models
+<div class="container">
+    <div class="half-screen-box">
+      <div class="text-container">
+            <h3 class="quest-name">@quest.Name</h3>
+            <p class="quest-description">@quest.Description</p>
+      </div>
+        <div class="buttons-container">
+            <button class="action-button">Button 1</button>
+            <button class="action-button">Button 2</button>
+        </div>
+
+        <div class="container">
+            <div class="column"></div>
+            <div class="column"></div>
+        </div>
+    </div>
+    <!-- Add more boxes as needed -->
+</div>
+@code {
+        [Parameter]
+    public Quest quest { get; set; } = 
+    new Quest("placeholder");
+
+}

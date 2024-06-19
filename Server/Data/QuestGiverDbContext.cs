@@ -12,7 +12,7 @@ namespace QuestGiver.Server.Data
 
     public DbSet<Quest> Quests { get; set; }
     public DbSet<Assignee> Assignees { get; set; }
-
+    public DbSet<QuestLog> QuestLogs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Quest>().ToTable("Quests");

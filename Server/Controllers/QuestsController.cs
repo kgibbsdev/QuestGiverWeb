@@ -65,15 +65,21 @@ namespace QuestGiver.Server.Controllers
             }
 
             var existingQuest = await _context.Quests.FindAsync(id);
-            existingQuest.CompletedDate = quest.CompletedDate;
-            existingQuest.IsCompleted = quest.IsCompleted;
-            existingQuest.Name = quest.Name;
-            existingQuest.Priority = quest.Priority;
-            existingQuest.ExperienceForCompletion = quest.ExperienceForCompletion;
-            existingQuest.Description = quest.Description;
-            existingQuest.RefreshTimeInDays = quest.RefreshTimeInDays;
 
-            _context.Quests.Update(existingQuest);
+            if(existingQuest != null)
+            {
+				existingQuest.CompletedDate = quest.CompletedDate;
+				existingQuest.IsCompleted = quest.IsCompleted;
+				existingQuest.Name = quest.Name;
+				existingQuest.Priority = quest.Priority;
+				existingQuest.ExperienceForCompletion = quest.ExperienceForCompletion;
+				existingQuest.Description = quest.Description;
+				existingQuest.RefreshTimeInDays = quest.RefreshTimeInDays;
+				existingQuest.IsAssigned = quest.IsAssigned;
+				existingQuest.QuestLogId = quest.QuestLogId;
+			}
+
+			_context.Quests.Update(existingQuest);
 
             try
             {
@@ -139,18 +145,29 @@ namespace QuestGiver.Server.Controllers
         public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
         {
             //Do we need to get the quest and assignee from the database?
-            var existingQuest = await _context.Quests.FindAsync(request.Quest.Id);
-            existingQuest.CompletedDate = request.Quest.CompletedDate;
-            existingQuest.IsCompleted = request.Quest.IsCompleted;
+            var incomingQuest = request.Quest;
+            var existingQuest = await _context.Quests.FindAsync(incomingQuest.Id);
+            existingQuest.CompletedDate = incomingQuest.CompletedDate;
+            existingQuest.IsCompleted = incomingQuest.IsCompleted;
             existingQuest.TimesCompleted += 1;
+            existingQuest.IsAssigned = false;
+            existingQuest.QuestLogId = null;
 
             var existingAssignee = await _context.Assignees.FindAsync(request.Assignee.Id);
-            existingAssignee.CurrentQuestId = null;
             existingAssignee.TotalExperience += existingQuest.ExperienceForCompletion;
             existingAssignee.Level = LevelCalculator.CalculateLevel(existingAssignee.TotalExperience);
             existingAssignee.QuestsCompleted += 1;
+
+            var incomingQuestLog = request.Assignee.QuestLog;
+            var existingQuestLog = await _context.QuestLogs.FindAsync(incomingQuestLog.Id);
+            existingQuestLog.QuestsCompleted += 1;
+            existingQuestLog.Quests = incomingQuestLog.Quests;
+
+
             _context.Quests.Update(existingQuest);
             _context.Assignees.Update(existingAssignee);
+
+            
 
             await _context.SaveChangesAsync();
 
@@ -161,7 +178,7 @@ namespace QuestGiver.Server.Controllers
         [HttpPost("assign")]
         public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
         {
-            var quests = _context.Quests.Where(q => q.IsCompleted == false).ToList();
+            var quests =  await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
 
             //Cannot track more than one instance of the same assignee
             var assignees = _context.Assignees.Where(a => a.Name != assignee.Name).ToList();
@@ -169,7 +186,7 @@ namespace QuestGiver.Server.Controllers
             var assignableQuests = new List<Quest>();
 
             //if a quest is already assigned to someone, don't include it in the assignable quests
-            var unassignedQuests = quests.Where(q => assignees.All(a => a.CurrentQuestId != q.Id)).ToList();
+            var unassignedQuests = quests.Where(q => !q.IsAssigned).ToList();
 
             if (unassignedQuests.Any(q => q.Priority == QuestPriority.High))
             {
@@ -189,12 +206,20 @@ namespace QuestGiver.Server.Controllers
             //pick a random quest from the assignable quests
             var random = new Random();
             var randomQuest = assignableQuests[random.Next(0, assignableQuests.Count)];
-
+            
             //assign the quest to the assignee
-            assignee.CurrentQuestId = randomQuest.Id;
-            assignee.CurrentQuest = randomQuest;
 
-            _context.Assignees.Update(assignee);
+            if (assignee.QuestLog == null)
+            {
+                assignee.QuestLog = new QuestLog();
+            }
+
+            assignee.QuestLog.AddQuest(randomQuest);
+			randomQuest.IsAssigned = true;
+            randomQuest.QuestLogId = assignee.QuestLog.Id;
+
+			_context.Assignees.Update(assignee);
+            _context.QuestLogs.Update(assignee.QuestLog);
 
             await _context.SaveChangesAsync();
 
@@ -209,15 +234,27 @@ namespace QuestGiver.Server.Controllers
         {
             Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
             if (assignee != null) {
-                assignee.CurrentQuestId = quest.Id;
+
+                if (assignee.QuestLog == null)
+                {
+                    assignee.QuestLog = new QuestLog();
+                }
+
+                assignee.QuestLog.AddQuest(quest);
+                quest.IsAssigned = true;
+
+                _context.Quests.Update(quest);
                 _context.Assignees.Update(assignee);
                 await _context.SaveChangesAsync();
+
+                Console.WriteLine($"Active quest is {assignee.QuestLog.ActiveQuest}");
                 return Ok(assignee);
             }
             else
             {
-                Console.WriteLine($"User with the name {name} was not found!");
-                return NotFound($"User with the name {name} was not found!");
+                string message = $"User with the name {name} was not found!";
+                Console.WriteLine(message);
+                return NotFound(message);
             }
         }
 
@@ -225,10 +262,10 @@ namespace QuestGiver.Server.Controllers
         [HttpPost("reset")]
         public async Task<IActionResult> ResetQuests(bool hardReset)
         {
-
-#if !DEBUG
-            return NotFound();
-#endif
+            //Do not delete
+            #if !DEBUG
+                return NotFound();
+            #endif
 
             var quests = await _context.Quests.ToListAsync();
             var assignees = await _context.Assignees.ToListAsync();

@@ -26,7 +26,17 @@ namespace QuestGiver.Server.Data
 				new Assignee("CJ"),
 				new Assignee("Kyle"),
 			};
+
+
+			var questLogs = new QuestLog[]
+            {
+                new QuestLog(),
+                new QuestLog(),
+            };
+
 			context.Quests.AddRange(quests);
+			context.Assignees.AddRange(assignees);
+			context.QuestLogs.AddRange(questLogs);
 			context.SaveChanges();
 		}
 	}

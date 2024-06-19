@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="_old\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 

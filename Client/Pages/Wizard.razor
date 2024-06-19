@@ -12,156 +12,180 @@
 
 @page "/"
 
-@if (currentUser != null)
+@if (_currentUser != null)
 {
-    <section class="profile-section">
-        <header class="profile-header">
-            <h1>Hello, @currentUser.Name!</h1>
-        </header>
+	<section class="profile-section">
+		<header class="profile-header">
+			<h1>Hello, @_currentUser.Name!</h1>
+		</header>
 
-        <ProgressBar CurrentValue="@progressValue" MaxValue="maxProgressValue" />
+		<ProgressBar CurrentValue="@progressValue" MaxValue="maxProgressValue" />
 
-        <article class="quest-section">
-            @if (currentUser.CurrentQuest != null)
-            {
-                <div class="quest-info">
-                    <p>Your current quest is @currentUser.CurrentQuest.Name</p>
-                </div>
+		<article class="quest-section">
+			@if (@_currentUser.QuestLog != null && _currentUser.QuestLog.ActiveQuest != null)
+			{
+				<div class="quest-info">
+					<p>Your current quest is @_currentUser.QuestLog.ActiveQuest.Name</p>
+				</div>
 
-                <div class="quest-actions">
-                    <button type="button" @onclick="@CompleteCurrentQuest" class="btn btn-primary">Turn in Current Quest</button>
-                    <button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button>
-                </div>
-            }
-            else
-            {
-                <div class="no-quest-info">
-                    You do not have a current quest
-                </div>
-                <button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me A Quest!</button>
-            }
-        </article>
+				<div class="quest-actions">
+					<button type="button" @onclick="@CompleteCurrentQuest" class="btn btn-primary">Turn in Current Quest</button>
+					<button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button>
+				</div>
+			}
+			else
+			{
+				<div class="no-quest-info">
+					You do not have a current quest
+				</div>
+				<button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me A Quest!</button>
+			}
+		</article>
 
-        <footer class="profile-footer">
-            <p>Name: @currentUser.Name</p>
-            <p>Current XP: @currentUser.TotalExperience</p>
-            <p>Current Level: @currentUser.Level</p>
-        </footer>
-    </section>
+		<footer class="profile-footer">
+			<p>Name: @_currentUser.Name</p>
+			<p>Current XP: @_currentUser.TotalExperience</p>
+			<p>Current Level: @_currentUser.Level</p>
+		</footer>
+	</section>
 }
 else
 {
-    if(assignees != null)
-    {
-        <section class="login-section">
-            <p class="who-goes-there-text">WHO GOES THERE</p>
-            <div class="login-buttons">
-                @foreach (var assignee in assignees)
-                {
-                    <button type="button" @onclick="@(() => SetCurrentUser(assignee.Name))" class="btn btn-primary">@assignee.Name</button>
-                }
-            </div>
-        </section>
-    }
-    else
-    {
-        <p><em>Loading...</em></p>
-    }
+	if(_assignees != null)
+	{
+		<section class="login-section">
+			<p class="who-goes-there-text">WHO GOES THERE</p>
+			<div class="login-buttons">
+				@foreach (var assignee in _assignees)
+				{
+					<button type="button" @onclick="@(() => SetCurrentUser(assignee.Name))" class="btn btn-primary">@assignee.Name</button>
+				}
+			</div>
+		</section>
+	}
+	else
+	{
+		<p><em>Loading...</em></p>
+	}
 }
 
 @code {
-    private IEnumerable<Assignee> assignees;
-    private IEnumerable<Quest> quests;
-    private Assignee currentUser;
+	private IEnumerable<Assignee> _assignees;
+	private IEnumerable<Quest> _quests;
+	private Assignee _currentUser;
 
-    private int progressValue = 0;
-    private int maxProgressValue = 10000;
+	private int progressValue = 0;
+	private int maxProgressValue = 10000;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            //currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
-            assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
-            quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			//currentUser = sessionStorage.GetItem<Assignee>("CurrentUser");
+			_assignees = await http.GetFromJsonAsync<Assignee[]>("api/assignees");
+			_quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+		}
+		catch(Exception ex)
+		{
+			Console.WriteLine(ex);
+		}
+	}
 
-    private async void SetCurrentUser(string name)
-    {
-        Console.WriteLine("In SetCurrentUser");
-        if (assignees != null)
-        {
-            //WARNING: This will throw an exception if an assignee is not found
-            currentUser = assignees.Single(a => a.Name.ToLower() == name.ToLower());
-            Console.WriteLine(currentUser.Name);
-            progressValue = currentUser.TotalExperience - LevelCalculator._levelToExp[currentUser.Level];
-            maxProgressValue = LevelCalculator._levelToExp[currentUser.Level + 1] - LevelCalculator._levelToExp[currentUser.Level];
-            //sessionStorage.SetItem("CurrentUser", currentUser);
-        }
-        else
-        {
-            Console.WriteLine("Assignees is null and caused 'SetCurrentUser' to fail!");
-        }
-    }
+	private async void SetCurrentUser(string name)
+	{
+		Console.WriteLine("In SetCurrentUser");
+		if (_assignees != null)
+		{
+			//WARNING: This will throw an exception if an assignee is not found
+			_currentUser = _assignees.Single(a => a.Name.ToLower() == name.ToLower());
+			Console.WriteLine(_currentUser.Name);
+			progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
+			maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
+			//sessionStorage.SetItem("CurrentUser", currentUser);
+			Console.WriteLine(_currentUser.QuestLog.Quests);
+		}
+		else
+		{
+			Console.WriteLine("Assignees is null and caused 'SetCurrentUser' to fail!");
+		}
+	}
 
-    private async void AssignQuestToPlayer()
-    {
-        var response = await http.PostAsJsonAsync($"api/quests/assign", currentUser);
+	private async Task AssignQuestToPlayer()
+	{
+		try
+		{
+			var response = await http.PostAsJsonAsync($"api/quests/assign", _currentUser);
 
-        //get the body from this response
-        var body = await response.Content.ReadAsStringAsync();
+			//get the body from this response
+			var body = await response.Content.ReadAsStringAsync();
+			Console.WriteLine($"Response Body: {body}");
 
-        //get the assignee from the body
-        try
-        {
-            currentUser = JsonSerializer.Deserialize<Assignee>(body);
-            //sessionStorage.SetItem("CurrentUser", currentUser);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-        Console.WriteLine("body: " + body);
-        StateHasChanged();
-    }
+			//get the assignee from the body
+			_currentUser = JsonSerializer.Deserialize<Assignee>(body);
+			StateHasChanged();
+			if (_currentUser != null)
+			{
+				Console.WriteLine("Deserialization successful");
+				StateHasChanged();
 
-    private async void CompleteCurrentQuest()
-    {
-        //We know current quest is not null because the button is not visible if it is null
-        var quest = quests.Single(q => q.Id == currentUser.CurrentQuest!.Id);
-        quest.CompletedDate = DateTime.Now;
-        quest.IsCompleted = true;
+				if(_currentUser.QuestLog == null)
+				{
+					Console.WriteLine("oh fuck oh shit");
+				}
+				Console.WriteLine($"Current User Questlog: {_currentUser.QuestLog?.ToString()}");
+			}
+			else
+			{
+				Console.WriteLine("Deserialization returned null");
+			}
+			StateHasChanged();
+		}
+		catch(Exception e)
+		{
+			Console.WriteLine($"Exception occurred: {e.Message}");
+		}
+		StateHasChanged();
+	}
 
-        var request = new CompleteQuestRequest(quest, currentUser);
-        await http.PostAsJsonAsync($"api/quests/complete", request);
+	private async void CompleteCurrentQuest()
+	{
+		//We know current quest is not null because the button is not visible if it is null
+		//Note: You're not supposed to trust the client, so there should still be a null check probably
+		var quest = _quests.Single(q => q.Id == _currentUser.QuestLog.ActiveQuest.Id);
+		quest.CompletedDate = DateTime.Now;
+		quest.IsCompleted = true;
+		quest.IsAssigned = false;
+		quest.QuestLogId = null;
 
-        currentUser.CurrentQuest = null;
-        quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
-        currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
+		var request = new CompleteQuestRequest(quest, _currentUser);
+		await http.PostAsJsonAsync($"api/quests/complete", request);
 
-        progressValue = currentUser.TotalExperience - LevelCalculator._levelToExp[currentUser.Level];
-        maxProgressValue = LevelCalculator._levelToExp[currentUser.Level + 1] - LevelCalculator._levelToExp[currentUser.Level];
+		_currentUser.QuestLog.Quests.RemoveAt(0);
+		_quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+		_currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
 
-        StateHasChanged();
-    }
+		progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
+		maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
 
-    private async void AbandonCurrentQuest()
-    {
-        currentUser.CurrentQuest = null;
-        currentUser.CurrentQuestId = null;
+		StateHasChanged();
+	}
 
-         var response = await http.PutAsJsonAsync<Assignee>($"api/assignees/{currentUser.Id}", currentUser);
+	private async void AbandonCurrentQuest()
+	{
+		var questToAbandon = _currentUser.QuestLog.ActiveQuest;
+		questToAbandon.IsAssigned = false;
+		questToAbandon.QuestLogId = null;
+		_currentUser.QuestLog.Quests.RemoveAt(0);
+		
+		var updateQuestResponse = await http.PutAsJsonAsync<Quest>($"api/quests/{questToAbandon.Id}", questToAbandon);
 
-        if(response.IsSuccessStatusCode)
-        {
-           currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{currentUser.Id}");
-           //sessionStorage.SetItem("CurrentUser", currentUser);
-           StateHasChanged();
-        }
-    }
+		var updateUserResponse = await http.PutAsJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}", _currentUser);
+		var body = await updateUserResponse.Content.ReadAsStringAsync();
+
+		if (updateUserResponse.IsSuccessStatusCode)
+		{
+			_currentUser = JsonSerializer.Deserialize<Assignee>(body);
+			StateHasChanged();
+		}
+	}
 }

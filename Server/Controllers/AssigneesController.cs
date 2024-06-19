@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
 using QuestGiver.Shared.Classes.Utility;
+using QuestGiver.Client.Pages;
 
 namespace QuestGiver.Server.Controllers
 {
@@ -33,9 +34,12 @@ namespace QuestGiver.Server.Controllers
           var assignees = await _context.Assignees.ToListAsync();
             foreach (var assignee in assignees)
             {
-                assignee.CurrentQuest = await _context.Quests.FindAsync(assignee.CurrentQuestId);
-            }
-            return assignees;
+                assignee.QuestLog = await _context.QuestLogs.FindAsync(assignee.QuestLogId);
+				var assignedQuests = _context.Quests.Where(q => q.QuestLogId == assignee.QuestLogId).ToList();
+				assignee.QuestLog.Quests = assignedQuests;
+			}
+
+			return assignees;
         }
 
         // GET: api/Assignees/5
@@ -53,6 +57,12 @@ namespace QuestGiver.Server.Controllers
                 return NotFound();
             }
 
+            assignee.QuestLog = await _context.QuestLogs.FindAsync(assignee.QuestLogId);
+
+            var assignedQuests = _context.Quests.Where(q => q.IsAssigned == true && q.QuestLogId == assignee.QuestLogId);
+
+            assignee.QuestLog.Quests = assignedQuests.ToList();
+
             return assignee;
         }
 
@@ -66,24 +76,7 @@ namespace QuestGiver.Server.Controllers
                 return BadRequest();
             }
 
-            // Retrieve the existing assignee from the database
-            var existingAssignee = await _context.Assignees.FindAsync(id);
-
-            if (existingAssignee == null)
-            {
-                return NotFound();
-            }
-
-            existingAssignee.CurrentQuest = assignee.CurrentQuest;
-            
-            //If the assignee has no current quest, set the current quest id to null
-            if(existingAssignee.CurrentQuest == null)
-            {
-                existingAssignee.CurrentQuestId = null;
-            }
-
-            _context.Assignees.Update(existingAssignee);
-            await _context.SaveChangesAsync();
+            _context.Assignees.Update(assignee);
 
             try
             {

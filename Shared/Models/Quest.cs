@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -15,6 +17,7 @@ namespace QuestGiver.Shared.Models
 
 	public class Quest
 	{
+        [Key]
         [JsonPropertyName("id")]
         public int Id { get; set; }
         
@@ -41,7 +44,13 @@ namespace QuestGiver.Shared.Models
 
         [JsonPropertyName("timesCompleted")]
         public int TimesCompleted { get; set; }
+
+        [ForeignKey("QuestLog")]
+        [JsonPropertyName("questLogId")]
         public int? QuestLogId { get; set; }
+
+        [JsonPropertyNameAttribute("isAssigned")]
+        public bool IsAssigned { get; set; }
         
 
         public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)

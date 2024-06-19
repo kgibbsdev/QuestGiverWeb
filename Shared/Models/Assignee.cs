@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -9,17 +11,12 @@ namespace QuestGiver.Shared.Models
 {
 	public class Assignee
 	{
+        [Key]
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
-
-        [JsonPropertyName("currentQuestId")]
-        public int? CurrentQuestId { get; set; }
-        
-        [JsonPropertyName("currentQuest")]
-        public Quest? CurrentQuest { get; set; }
 
         [JsonPropertyName("totalExperience")]
         public int TotalExperience { get; set; }
@@ -29,8 +26,13 @@ namespace QuestGiver.Shared.Models
 
         [JsonPropertyName("questsCompleted")]
         public int QuestsCompleted { get; set; }
+
+        [ForeignKey("QuestLogId")]
+        [JsonPropertyName("questLogId")]
         public int? QuestLogId { get; set; }
-        public QuestLog? QuestLog { get; set; }
+
+		[JsonPropertyName("questLog")]
+		public QuestLog? QuestLog { get; set; }
 
         public Assignee(string name)
 		{

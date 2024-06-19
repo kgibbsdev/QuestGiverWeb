@@ -161,12 +161,11 @@ namespace QuestGiver.Server.Controllers
             var incomingQuestLog = request.Assignee.QuestLog;
             var existingQuestLog = await _context.QuestLogs.FindAsync(incomingQuestLog.Id);
             existingQuestLog.QuestsCompleted += 1;
-            existingQuestLog.Quests = incomingQuestLog.Quests;
-
+            existingQuestLog.Quests.Remove(incomingQuest);
 
             _context.Quests.Update(existingQuest);
             _context.Assignees.Update(existingAssignee);
-
+            _context.QuestLogs.Update(existingQuestLog);
             
 
             await _context.SaveChangesAsync();

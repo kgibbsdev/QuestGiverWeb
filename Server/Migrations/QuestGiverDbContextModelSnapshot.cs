@@ -81,6 +81,10 @@ namespace QuestGiver.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("Relational:JsonPropertyName", "experienceForCompletion");
 
+                    b.Property<int>("IntendedAssignee")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "intendedAssignee");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit")
                         .HasAnnotation("Relational:JsonPropertyName", "isActive");

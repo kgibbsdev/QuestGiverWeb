@@ -60,7 +60,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         //get quest from server
-        quest = new Quest("", "", 1, false, 50, true);
+        quest = new Quest("", "", 1, false, 50, true, IntendedAssignee.Anyone);
     }
 
     private async Task AddNewQuest()

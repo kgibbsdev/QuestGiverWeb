@@ -12,8 +12,8 @@ using QuestGiver.Server.Data;
 namespace QuestGiver.Server.Migrations
 {
     [DbContext(typeof(QuestGiverDbContext))]
-    [Migration("20240615154953_AddAssignedQuestLogIdToQuests")]
-    partial class AddAssignedQuestLogIdToQuests
+    [Migration("20240803005722_AddIntendedAssigneeToQuests")]
+    partial class AddIntendedAssigneeToQuests
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,7 +44,8 @@ namespace QuestGiver.Server.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "name");
 
                     b.Property<int?>("QuestLogId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "questLogId");
 
                     b.Property<int>("QuestsCompleted")
                         .HasColumnType("int")
@@ -70,10 +71,6 @@ namespace QuestGiver.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssignedQuestLogId")
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "assignedQuestLogId");
-
                     b.Property<DateTime>("CompletedDate")
                         .HasColumnType("datetime2")
                         .HasAnnotation("Relational:JsonPropertyName", "completedDate");
@@ -86,6 +83,14 @@ namespace QuestGiver.Server.Migrations
                     b.Property<int>("ExperienceForCompletion")
                         .HasColumnType("int")
                         .HasAnnotation("Relational:JsonPropertyName", "experienceForCompletion");
+
+                    b.Property<int>("IntendedAssignee")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "intendedAssignee");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasAnnotation("Relational:JsonPropertyName", "isActive");
 
                     b.Property<bool>("IsAssigned")
                         .HasColumnType("bit")
@@ -105,7 +110,8 @@ namespace QuestGiver.Server.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "priority");
 
                     b.Property<int?>("QuestLogId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "questLogId");
 
                     b.Property<int>("RefreshTimeInDays")
                         .HasColumnType("int")
@@ -120,22 +126,28 @@ namespace QuestGiver.Server.Migrations
                     b.HasIndex("QuestLogId");
 
                     b.ToTable("Quests", (string)null);
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "quests");
                 });
 
             modelBuilder.Entity("QuestGiver.Shared.Models.QuestLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("QuestsCompleted")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "questsCompleted");
 
                     b.HasKey("Id");
 
                     b.ToTable("QuestLogs", (string)null);
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "questLog");
                 });
 
             modelBuilder.Entity("QuestGiver.Shared.Models.Assignee", b =>

@@ -179,7 +179,9 @@ namespace QuestGiver.Server.Controllers
 		{
 			// Fetch quests without tracking to avoid conflicts
 			var quests = await _context.Quests.AsNoTracking()
-            .Where(q => q.IsCompleted == false && q.IsActive == true)
+            .Where(q => q.IsCompleted == false)
+            .Where(q => q.IsActive == true)
+            .Where(q => (int)q.IntendedAssignee == assignee.Id || q.IntendedAssignee == IntendedAssignee.Anyone)
             .ToListAsync();
 
 			var assignableQuests = new List<Quest>();

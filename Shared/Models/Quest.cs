@@ -15,6 +15,13 @@ namespace QuestGiver.Shared.Models
 		Low=3
 	}
 
+	public enum IntendedAssignee
+	{
+		Anyone = 0,
+		CJ =1,
+		Kyle=2,
+	}
+
 	public class Quest
 	{
 		[Key]
@@ -53,9 +60,12 @@ namespace QuestGiver.Shared.Models
 		public bool IsAssigned { get; set; }
 		[JsonPropertyNameAttribute("isActive")]
 		public bool IsActive { get; set; }
+
+		[JsonPropertyNameAttribute("intendedAssignee")]
+		public IntendedAssignee IntendedAssignee { get; set; }
 		
 		[JsonConstructorAttribute]
-		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion, bool isActive)
+		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion, bool isActive, IntendedAssignee intendedAssignee)
 		{
 			Name = name;
 			Description = description;
@@ -63,6 +73,7 @@ namespace QuestGiver.Shared.Models
 			IsCompleted = isCompleted;
 			ExperienceForCompletion = experienceForCompletion;
 			IsActive = isActive;
+			IntendedAssignee = intendedAssignee;
 		}
 
 		public Quest(string name)
@@ -73,6 +84,7 @@ namespace QuestGiver.Shared.Models
 			IsCompleted = false;
 			ExperienceForCompletion = 0;
 			IsActive = true;
+			IntendedAssignee = IntendedAssignee.Anyone;
 		}
 	}
 }

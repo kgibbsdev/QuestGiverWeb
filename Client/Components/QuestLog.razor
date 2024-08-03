@@ -1,1 +1,26 @@
-﻿
+﻿@using QuestGiver.Shared.Models
+@inject HttpClient http
+
+@foreach (var quest in Quests)
+{
+	<QuestLogQuest quest="@quest" OnAbandonButtonPressed="@AbandonQuest" />
+}
+
+
+@code {
+	[Parameter]
+	public List<Quest> Quests { get; set; } = new List<Quest>();
+
+	[Parameter]
+	public EventCallback TellWizardToUpdate { get; set; }
+
+	public async void AbandonQuest(Quest quest)
+	{
+		quest.IsAssigned = false;
+		quest.QuestLogId = null;
+		var updateQuestResponse = await http.PutAsJsonAsync<Quest>($"api/quests/{quest.Id}", quest);
+		Console.WriteLine(updateQuestResponse);
+		StateHasChanged();
+		await TellWizardToUpdate.InvokeAsync();
+	}
+}

@@ -31,14 +31,14 @@
 
 				<div class="quest-actions">
 					<button type="button" @onclick="@CompleteCurrentQuest" class="btn btn-primary">Turn in Current Quest</button>
-					<button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button>
+					@* <button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button> *@
 					<button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me Another Quest!</button>
 				</div>
 			}
 			else
 			{
 				<div class="no-quest-info">
-					You do not have a current quest
+					You do not have a any quests!
 				</div>
 				<button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me A Quest!</button>
 			}
@@ -54,14 +54,7 @@
 	</section>
 
 	<section class="quests-ui-section">
-		@foreach(var quest in _currentUser.QuestLog.Quests)
-		{
-			<QuestLogQuest quest="@quest" />
-		}		
-	</section>
-	
-	<section>
-		<QuestLog></QuestLog>
+		<QuestLog Quests="_currentUser.QuestLog!.Quests" TellWizardToUpdate="Update"></QuestLog>		
 	</section>
 }
 else
@@ -184,22 +177,11 @@ else
 		StateHasChanged();
 	}
 
-	private async void AbandonCurrentQuest()
+	private async void Update()
 	{
-		var questToAbandon = _currentUser.QuestLog.ActiveQuest;
-		questToAbandon.IsAssigned = false;
-		questToAbandon.QuestLogId = null;
-		_currentUser.QuestLog.Quests.RemoveAt(0);
+		Console.WriteLine("Wizard is updating...");
 		
-		var updateQuestResponse = await http.PutAsJsonAsync<Quest>($"api/quests/{questToAbandon.Id}", questToAbandon);
-
-		var updateUserResponse = await http.PutAsJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}", _currentUser);
-		var body = await updateUserResponse.Content.ReadAsStringAsync();
-
-		if (updateUserResponse.IsSuccessStatusCode)
-		{
-			_currentUser = JsonSerializer.Deserialize<Assignee>(body);
-			StateHasChanged();
-		}
+		_currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
+		StateHasChanged();
 	}
 }

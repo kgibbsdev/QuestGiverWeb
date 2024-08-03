@@ -173,61 +173,71 @@ namespace QuestGiver.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Quests/assign
-        [HttpPost("assign")]
-        public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
-        {
-            var quests =  await _context.Quests.Where(q => q.IsCompleted == false).ToListAsync();
+		// POST: api/Quests/assign
+		[HttpPost("assign")]
+		public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
+		{
+			// Fetch quests without tracking to avoid conflicts
+			var quests = await _context.Quests.AsNoTracking().Where(q => q.IsCompleted == false).ToListAsync();
 
-            //Cannot track more than one instance of the same assignee
-            var assignees = _context.Assignees.Where(a => a.Name != assignee.Name).ToList();
+			var assignableQuests = new List<Quest>();
 
-            var assignableQuests = new List<Quest>();
+			// Filter out assigned quests and prioritize based on your logic
+			var unassignedQuests = quests.Where(q => !q.IsAssigned).ToList();
 
-            //if a quest is already assigned to someone, don't include it in the assignable quests
-            var unassignedQuests = quests.Where(q => !q.IsAssigned).ToList();
+			if (unassignedQuests.Any(q => q.Priority == QuestPriority.High))
+			{
+				assignableQuests = unassignedQuests.Where(q => q.Priority == QuestPriority.High).ToList();
+			}
+			else if (unassignedQuests.Any(q => q.Priority == QuestPriority.Medium))
+			{
+				assignableQuests = unassignedQuests.Where(q => q.Priority == QuestPriority.Medium).ToList();
+			}
+			else if (unassignedQuests.Any(q => q.Priority == QuestPriority.Low))
+			{
+				assignableQuests = unassignedQuests.Where(q => q.Priority == QuestPriority.Low).ToList();
+			}
 
-            if (unassignedQuests.Any(q => q.Priority == QuestPriority.High))
-            {
-                assignableQuests = quests.Where(q => q.Priority == QuestPriority.High).ToList();
-            }
+			if (!assignableQuests.Any())
+			{
+				return NotFound("No assignable quests available.");
+			}
 
-            if (unassignedQuests.Any(q => q.Priority == QuestPriority.Medium) && assignableQuests.IsNullOrEmpty())
-            {
-                assignableQuests = quests.Where(q => q.Priority == QuestPriority.Medium).ToList();
-            }
+			// Pick a random quest from the assignable quests
+			var random = new Random();
+			var randomQuest = assignableQuests[random.Next(assignableQuests.Count)];
 
-            if (unassignedQuests.Any(q => q.Priority == QuestPriority.Low) && assignableQuests.IsNullOrEmpty())
-            {
-                assignableQuests = quests.Where(q => q.Priority == QuestPriority.Low).ToList();
-            }
+			// Ensure the assignee's QuestLog is not null and attach it to the context if necessary
+			if (assignee.QuestLog == null)
+			{
+				assignee.QuestLog = new QuestLog();
+				_context.QuestLogs.Add(assignee.QuestLog); // New QuestLog should be added
+			}
+			else
+			{
+				_context.QuestLogs.Attach(assignee.QuestLog); // Attach existing QuestLog
+			}
 
-            //pick a random quest from the assignable quests
-            var random = new Random();
-            var randomQuest = assignableQuests[random.Next(0, assignableQuests.Count)];
-            
-            //assign the quest to the assignee
-
-            if (assignee.QuestLog == null)
-            {
-                assignee.QuestLog = new QuestLog();
-            }
-
-            assignee.QuestLog.AddQuest(randomQuest);
+			// Update the quest and assignee
 			randomQuest.IsAssigned = true;
-            randomQuest.QuestLogId = assignee.QuestLog.Id;
+			randomQuest.QuestLogId = assignee.QuestLog.Id;
 
-			_context.Assignees.Update(assignee);
-            _context.QuestLogs.Update(assignee.QuestLog);
+			// Attach the quest to the context and mark it as modified
+			_context.Quests.Attach(randomQuest);
+			_context.Entry(randomQuest).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+			// Attach the assignee to the context and mark it as modified
+			_context.Assignees.Attach(assignee);
+			_context.Entry(assignee).State = EntityState.Modified;
 
-            //TODO: Need to handle the case where there are no quests to assign
-            return Ok(assignee);
-        }
+			await _context.SaveChangesAsync();
 
-        // POST: api/AssignThisQuestToMe/kyle
-        [Route("AssignThisQuestToMe/{name}")]
+			return Ok(assignee);
+		}
+
+
+		// POST: api/AssignThisQuestToMe/kyle
+		[Route("AssignThisQuestToMe/{name}")]
         [HttpPost]
         public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute] string name)
         {

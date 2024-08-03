@@ -6,6 +6,7 @@
 @using System.Text.Json;
 @using Microsoft.AspNetCore.Components;
 @using QuestGiver.Shared.Classes.Utility;
+@using QuestGiver.Client.Components;
 @inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
 @inject NavigationManager navigationManager
 @inject HttpClient http
@@ -31,6 +32,7 @@
 				<div class="quest-actions">
 					<button type="button" @onclick="@CompleteCurrentQuest" class="btn btn-primary">Turn in Current Quest</button>
 					<button type="button" @onclick="@AbandonCurrentQuest" class="btn btn-secondary">Abandon Quest</button>
+					<button type="button" @onclick="@AssignQuestToPlayer" class="btn btn-primary">Give Me Another Quest!</button>
 				</div>
 			}
 			else
@@ -44,7 +46,9 @@
 
 		<footer class="profile-footer">
 			<p>Name: @_currentUser.Name</p>
-			<p>Current XP: @_currentUser.TotalExperience</p>
+			<p>Current XP: @progressValue</p>
+			<p>XP to Next Level: @(maxProgressValue - progressValue)</p>
+			<p>Total Exp: @_currentUser.TotalExperience</p>
 			<p>Current Level: @_currentUser.Level</p>
 		</footer>
 	</section>
@@ -52,10 +56,13 @@
 	<section class="quests-ui-section">
 		@foreach(var quest in _currentUser.QuestLog.Quests)
 		{
-			<QuestGiver.Client.Components.QuestLogQuest quest="@quest" />
+			<QuestLogQuest quest="@quest" />
 		}		
 	</section>
 	
+	<section>
+		<QuestLog></QuestLog>
+	</section>
 }
 else
 {
@@ -109,7 +116,6 @@ else
 			Console.WriteLine(_currentUser.Name);
 			progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
 			maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
-			//sessionStorage.SetItem("CurrentUser", currentUser);
 			Console.WriteLine(_currentUser.QuestLog.Quests);
 		}
 		else

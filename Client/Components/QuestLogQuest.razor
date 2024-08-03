@@ -12,7 +12,7 @@
 			
 		  </div>
 		<div class="buttons-container">
-			<button class="action-button">Complete Quest</button>
+			<button @onclick="InternalOnCompleteButtonPressed" class="action-button">Complete Quest</button>
 			<button @onclick="InternalOnAbandonButtonPressed" class="action-button">Abandon Quest</button>
 		</div>
 	</div>
@@ -27,6 +27,9 @@
 	[Parameter]
 	public EventCallback<Quest> OnAbandonButtonPressed { get; set; }
 
+	[Parameter]
+	public EventCallback<Quest> OnCompleteButtonPressed { get; set; }
+
 	public async Task InternalOnAbandonButtonPressed()
 	{
 		if(OnAbandonButtonPressed.HasDelegate)
@@ -35,7 +38,20 @@
 		}
 		else
 		{
-			Console.WriteLine("No dellie :(");
+			Console.WriteLine("No delegate for OnAbandonButtonPressed!");
+		}
+	}
+
+	public async Task InternalOnCompleteButtonPressed()
+	{
+		Console.WriteLine("QuestLogQuest OnComplete");
+		if(OnCompleteButtonPressed.HasDelegate)
+		{
+			await OnCompleteButtonPressed.InvokeAsync(quest);
+		}
+		else
+		{
+			Console.WriteLine("No delegate for OnCompleteButtonPressed!");
 		}
 	}
 

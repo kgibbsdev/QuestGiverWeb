@@ -11,63 +11,64 @@ using QuestGiver.Server.Data;
 using QuestGiver.Shared.Models;
 using QuestGiver.Shared.Models.Requests;
 using QuestGiver.Shared.Classes.Utility;
+using QuestGiver.Client.Pages;
 
 namespace QuestGiver.Server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class QuestsController : ControllerBase
-    {
-        private readonly QuestGiverDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class QuestsController : ControllerBase
+	{
+		private readonly QuestGiverDbContext _context;
 
-        public QuestsController(QuestGiverDbContext context)
-        {
-            _context = context;
-        }
+		public QuestsController(QuestGiverDbContext context)
+		{
+			_context = context;
+		}
 
-        // GET: api/Quests
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Quest>>> GetQuests()
-        {
-            if (_context.Quests == null)
-            {
-                return NotFound();
-            }
-            return await _context.Quests.ToListAsync();
-        }
+		// GET: api/Quests
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Quest>>> GetQuests()
+		{
+			if (_context.Quests == null)
+			{
+				return NotFound();
+			}
+			return await _context.Quests.ToListAsync();
+		}
 
-        // GET: api/Quests/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Quest>> GetQuest(int id)
-        {
-            if (_context.Quests == null)
-            {
-                return NotFound();
-            }
-            var quest = await _context.Quests.FindAsync(id);
+		// GET: api/Quests/5
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Quest>> GetQuest(int id)
+		{
+			if (_context.Quests == null)
+			{
+				return NotFound();
+			}
+			var quest = await _context.Quests.FindAsync(id);
 
-            if (quest == null)
-            {
-                return NotFound();
-            }
+			if (quest == null)
+			{
+				return NotFound();
+			}
 
-            return quest;
-        }
+			return quest;
+		}
 
-        // PUT: api/Quests/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuest(int id, Quest quest)
-        {
-            if (id != quest.Id)
-            {
-                return BadRequest();
-            }
+		// PUT: api/Quests/5
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPut("{id}")]
+		public async Task<IActionResult> PutQuest(int id, Quest quest)
+		{
+			if (id != quest.Id)
+			{
+				return BadRequest();
+			}
 
-            var existingQuest = await _context.Quests.FindAsync(id);
+			var existingQuest = await _context.Quests.FindAsync(id);
 
-            if(existingQuest != null)
-            {
+			if(existingQuest != null)
+			{
 				existingQuest.CompletedDate = quest.CompletedDate;
 				existingQuest.IsCompleted = quest.IsCompleted;
 				existingQuest.Name = quest.Name;
@@ -81,97 +82,110 @@ namespace QuestGiver.Server.Controllers
 
 			_context.Quests.Update(existingQuest);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!QuestExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!QuestExists(id))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
 
-            return NoContent();
-        }
+			return NoContent();
+		}
 
-        // POST: api/Quests
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Quest>> PostQuest(Quest quest)
-        {
-            if (_context.Quests == null)
-            {
-                return Problem("Entity set 'QuestGiverDbContext.Quests'  is null.");
-            }
-            _context.Quests.Add(quest);
-            await _context.SaveChangesAsync();
+		// POST: api/Quests
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
+		public async Task<ActionResult<Quest>> PostQuest(Quest quest)
+		{
+			if (_context.Quests == null)
+			{
+				return Problem("Entity set 'QuestGiverDbContext.Quests'  is null.");
+			}
+			_context.Quests.Add(quest);
+			await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQuest", new { id = quest.Id }, quest);
-        }
+			return CreatedAtAction("GetQuest", new { id = quest.Id }, quest);
+		}
 
-        // DELETE: api/Quests/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteQuest(int id)
-        {
-            if (_context.Quests == null)
-            {
-                return NotFound();
-            }
-            var quest = await _context.Quests.FindAsync(id);
-            if (quest == null)
-            {
-                return NotFound();
-            }
+		// DELETE: api/Quests/5
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteQuest(int id)
+		{
+			if (_context.Quests == null)
+			{
+				return NotFound();
+			}
+			var quest = await _context.Quests.FindAsync(id);
+			if (quest == null)
+			{
+				return NotFound();
+			}
 
-            _context.Quests.Remove(quest);
-            await _context.SaveChangesAsync();
+			_context.Quests.Remove(quest);
+			await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+			return NoContent();
+		}
 
-        private bool QuestExists(int id)
-        {
-            return (_context.Quests?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+		private bool QuestExists(int id)
+		{
+			return (_context.Quests?.Any(e => e.Id == id)).GetValueOrDefault();
+		}
 
-        // POST: api/Quests/Complete
-        [HttpPost("complete")]
-        public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
-        {
-            //Do we need to get the quest and assignee from the database?
-            var incomingQuest = request.Quest;
-            var existingQuest = await _context.Quests.FindAsync(incomingQuest.Id);
-            existingQuest.CompletedDate = incomingQuest.CompletedDate;
-            existingQuest.IsCompleted = incomingQuest.IsCompleted;
-            existingQuest.TimesCompleted += 1;
-            existingQuest.IsAssigned = false;
-            existingQuest.QuestLogId = null;
+		// POST: api/Quests/Complete
+		[HttpPost("complete")]
+		public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
+		{
+			var quest = await _context.Quests.FindAsync(request.Quest.Id);
+			if (quest == null)
+			{
+				return NotFound("Quest not found");
+			}
 
-            var existingAssignee = await _context.Assignees.FindAsync(request.Assignee.Id);
-            existingAssignee.TotalExperience += existingQuest.ExperienceForCompletion;
-            existingAssignee.Level = LevelCalculator.CalculateLevel(existingAssignee.TotalExperience);
-            existingAssignee.QuestsCompleted += 1;
+			quest.CompletedDate = DateTime.Now;
+			quest.IsCompleted = true;
+			quest.TimesCompleted += 1;
+			quest.IsAssigned = false;
+			quest.QuestLogId = null;
 
-            var incomingQuestLog = request.Assignee.QuestLog;
-            var existingQuestLog = await _context.QuestLogs.FindAsync(incomingQuestLog.Id);
-            existingQuestLog.QuestsCompleted += 1;
-            existingQuestLog.Quests.Remove(incomingQuest);
+			_context.Entry(quest).State = EntityState.Modified;
 
-            _context.Quests.Update(existingQuest);
-            _context.Assignees.Update(existingAssignee);
-            _context.QuestLogs.Update(existingQuestLog);
-            
+			var questLog = await _context.QuestLogs.FindAsync(request.Assignee.QuestLog.Id);
+			if (questLog == null)
+			{
+				return NotFound("QuestLog not found");
+			}
 
-            await _context.SaveChangesAsync();
+			questLog.QuestsCompleted += 1;
+			questLog.Quests.Remove(quest);
 
-            return NoContent();
-        }
+			_context.Entry(questLog).State = EntityState.Modified;
+
+			var assignee = await _context.Assignees.FindAsync(request.Assignee.Id);
+			if (assignee == null)
+			{
+				return NotFound("Assignee not found");
+			}
+
+			assignee.TotalExperience += request.Quest.ExperienceForCompletion;
+			assignee.Level = LevelCalculator.CalculateLevel(assignee.TotalExperience);
+
+			_context.Entry(assignee).State = EntityState.Modified;
+
+			await _context.SaveChangesAsync();
+
+			return Ok();
+		}
+
 
 		// POST: api/Quests/assign
 		[HttpPost("assign")]
@@ -179,10 +193,10 @@ namespace QuestGiver.Server.Controllers
 		{
 			// Fetch quests without tracking to avoid conflicts
 			var quests = await _context.Quests.AsNoTracking()
-            .Where(q => q.IsCompleted == false)
-            .Where(q => q.IsActive == true)
-            .Where(q => (int)q.IntendedAssignee == assignee.Id || q.IntendedAssignee == IntendedAssignee.Anyone)
-            .ToListAsync();
+			.Where(q => q.IsCompleted == false)
+			.Where(q => q.IsActive == true)
+			.Where(q => (int)q.IntendedAssignee == assignee.Id || q.IntendedAssignee == IntendedAssignee.Anyone)
+			.ToListAsync();
 
 			var assignableQuests = new List<Quest>();
 
@@ -241,97 +255,97 @@ namespace QuestGiver.Server.Controllers
 
 		// POST: api/AssignThisQuestToMe/kyle
 		[Route("AssignThisQuestToMe/{name}")]
-        [HttpPost]
-        public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute] string name)
-        {
-            Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
-            if (assignee != null) {
+		[HttpPost]
+		public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute] string name)
+		{
+			Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
+			if (assignee != null) {
 
-                if (assignee.QuestLog == null)
-                {
-                    assignee.QuestLog = new QuestLog();
-                }
+				if (assignee.QuestLog == null)
+				{
+					assignee.QuestLog = new QuestLog();
+				}
 
-                assignee.QuestLog.AddQuest(quest);
-                quest.IsAssigned = true;
+				assignee.QuestLog.AddQuest(quest);
+				quest.IsAssigned = true;
 
-                _context.Quests.Update(quest);
-                _context.Assignees.Update(assignee);
-                await _context.SaveChangesAsync();
+				_context.Quests.Update(quest);
+				_context.Assignees.Update(assignee);
+				await _context.SaveChangesAsync();
 
-                Console.WriteLine($"Active quest is {assignee.QuestLog.ActiveQuest}");
-                return Ok(assignee);
-            }
-            else
-            {
-                string message = $"User with the name {name} was not found!";
-                Console.WriteLine(message);
-                return NotFound(message);
-            }
-        }
+				Console.WriteLine($"Active quest is {assignee.QuestLog.ActiveQuest}");
+				return Ok(assignee);
+			}
+			else
+			{
+				string message = $"User with the name {name} was not found!";
+				Console.WriteLine(message);
+				return NotFound(message);
+			}
+		}
 
-        // POST: api/Quests/Reset
-        [HttpPost("reset")]
-        public async Task<IActionResult> ResetQuests(bool hardReset)
-        {
-            //Do not delete
-            #if !DEBUG
-                return NotFound();
-            #endif
+		// POST: api/Quests/Reset
+		[HttpPost("reset")]
+		public async Task<IActionResult> ResetQuests(bool hardReset)
+		{
+			//Do not delete
+			#if !DEBUG
+				return NotFound();
+			#endif
 
-            var quests = await _context.Quests.ToListAsync();
-            var assignees = await _context.Assignees.ToListAsync();
+			var quests = await _context.Quests.ToListAsync();
+			var assignees = await _context.Assignees.ToListAsync();
 
-            foreach (var quest in quests)
-            {
-                quest.IsCompleted = false;
-                quest.CompletedDate = default;
-                quest.TimesCompleted = 0;
-            }
+			foreach (var quest in quests)
+			{
+				quest.IsCompleted = false;
+				quest.CompletedDate = default;
+				quest.TimesCompleted = 0;
+			}
 
-            _context.Quests.UpdateRange(quests);
+			_context.Quests.UpdateRange(quests);
 
-            await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 
-            return Ok();
-        }
+			return Ok();
+		}
 
-        // POST: api/Quests/New
-        [HttpPost("new")]
-        public async Task<IActionResult> NewQuest([FromBody] Quest quest)
-        {
-            _context.Quests.Add(quest);
+		// POST: api/Quests/New
+		[HttpPost("new")]
+		public async Task<IActionResult> NewQuest([FromBody] Quest quest)
+		{
+			_context.Quests.Add(quest);
 
-            await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 
-            return Ok(quest);
-        }
+			return Ok(quest);
+		}
 
-        // POST: api/Quests/Startup
-        [HttpPost("startup")]
-        public async Task<IActionResult> Startup()
-        {
-            StartupJobs();
-            return Ok();
-        }
+		// POST: api/Quests/Startup
+		[HttpPost("startup")]
+		public async Task<IActionResult> Startup()
+		{
+			StartupJobs();
+			return Ok();
+		}
 
-        public void StartupJobs()
-        {
-            var quests = _context.Quests.ToList();
+		public void StartupJobs()
+		{
+			var quests = _context.Quests.ToList();
 
-           //For each completed quest, check if it needs to be reset
-           foreach(var quest in quests.Where(q => q.IsCompleted))
-            {
-                var daysSinceCompletion = DateTime.Now.Subtract(quest.CompletedDate).Days;
-                if(daysSinceCompletion >= quest.RefreshTimeInDays)
-                {
-                    quest.IsCompleted = false;
-                    quest.CompletedDate = default;
-                }
-            }
+		   //For each completed quest, check if it needs to be reset
+		   foreach(var quest in quests.Where(q => q.IsCompleted))
+			{
+				var daysSinceCompletion = DateTime.Now.Subtract(quest.CompletedDate).Days;
+				if(daysSinceCompletion >= quest.RefreshTimeInDays)
+				{
+					quest.IsCompleted = false;
+					quest.CompletedDate = default;
+				}
+			}
 
-            _context.Quests.UpdateRange(quests);
-            _context.SaveChanges();
-        }
-    }
+			_context.Quests.UpdateRange(quests);
+			_context.SaveChanges();
+		}
+	}
 }

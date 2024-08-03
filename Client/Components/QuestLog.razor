@@ -1,15 +1,19 @@
 ﻿@using QuestGiver.Shared.Models
+@using QuestGiver.Shared.Models.Requests
 @inject HttpClient http
 
 @foreach (var quest in Quests)
 {
-	<QuestLogQuest quest="@quest" OnAbandonButtonPressed="@AbandonQuest" />
+	<QuestLogQuest quest="@quest" OnAbandonButtonPressed="AbandonQuest" OnCompleteButtonPressed="CompleteQuest" />
 }
 
 
 @code {
 	[Parameter]
 	public List<Quest> Quests { get; set; } = new List<Quest>();
+
+	[Parameter]
+	public Assignee Assignee { get; set; }
 
 	[Parameter]
 	public EventCallback TellWizardToUpdate { get; set; }
@@ -20,6 +24,17 @@
 		quest.QuestLogId = null;
 		var updateQuestResponse = await http.PutAsJsonAsync<Quest>($"api/quests/{quest.Id}", quest);
 		Console.WriteLine(updateQuestResponse);
+		StateHasChanged();
+		await TellWizardToUpdate.InvokeAsync();
+	}
+
+	public async void CompleteQuest(Quest quest)
+	{
+		Console.WriteLine("Complete Quest Questlog");
+		var request = new CompleteQuestRequest(quest, Assignee);
+		var completeQuestResponse = await http.PostAsJsonAsync<CompleteQuestRequest>
+		("api/quests/complete", request);
+
 		StateHasChanged();
 		await TellWizardToUpdate.InvokeAsync();
 	}

@@ -51,15 +51,18 @@ namespace QuestGiver.Shared.Models
 
 		[JsonPropertyNameAttribute("isAssigned")]
 		public bool IsAssigned { get; set; }
+		[JsonPropertyNameAttribute("isActive")]
+		public bool IsActive { get; set; }
 		
 		[JsonConstructorAttribute]
-		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion)
+		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion, bool isActive)
 		{
 			Name = name;
 			Description = description;
 			RefreshTimeInDays = refreshTimeInDays;
 			IsCompleted = isCompleted;
 			ExperienceForCompletion = experienceForCompletion;
+			IsActive = isActive;
 		}
 
 		public Quest(string name)
@@ -69,6 +72,7 @@ namespace QuestGiver.Shared.Models
 			RefreshTimeInDays = 1;
 			IsCompleted = false;
 			ExperienceForCompletion = 0;
+			IsActive = true;
 		}
 	}
 }

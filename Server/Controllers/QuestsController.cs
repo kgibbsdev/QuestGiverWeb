@@ -178,11 +178,12 @@ namespace QuestGiver.Server.Controllers
 		public async Task<IActionResult> AssignNewQuest([FromBody] Assignee assignee)
 		{
 			// Fetch quests without tracking to avoid conflicts
-			var quests = await _context.Quests.AsNoTracking().Where(q => q.IsCompleted == false).ToListAsync();
+			var quests = await _context.Quests.AsNoTracking()
+            .Where(q => q.IsCompleted == false && q.IsActive == true)
+            .ToListAsync();
 
 			var assignableQuests = new List<Quest>();
 
-			// Filter out assigned quests and prioritize based on your logic
 			var unassignedQuests = quests.Where(q => !q.IsAssigned).ToList();
 
 			if (unassignedQuests.Any(q => q.Priority == QuestPriority.High))

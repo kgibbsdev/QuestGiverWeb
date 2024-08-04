@@ -82,6 +82,7 @@ else
 	private IEnumerable<Quest> _quests;
 	private Assignee _currentUser;
 
+	//Make sure to update progressValue based on the player's exp
 	private int progressValue = 0;
 	private int maxProgressValue = 10000;
 
@@ -156,32 +157,34 @@ else
 
 	private async void CompleteCurrentQuest()
 	{
-		//We know current quest is not null because the button is not visible if it is null
-		//Note: You're not supposed to trust the client, so there should still be a null check probably
-		var quest = _quests.Single(q => q.Id == _currentUser.QuestLog.ActiveQuest.Id);
-		quest.CompletedDate = DateTime.Now;
-		quest.IsCompleted = true;
-		quest.IsAssigned = false;
-		quest.QuestLogId = null;
+	  //We know current quest is not null because the button is not visible if it is null
+	  //Note: You're not supposed to trust the client, so there should still be a null check probably
+	  var quest = _quests.Single(q => q.Id == _currentUser.QuestLog.ActiveQuest.Id);
+	  quest.CompletedDate = DateTime.Now;
+	  quest.IsCompleted = true;
+	  quest.IsAssigned = false;
+	  quest.QuestLogId = null;
 
-		var request = new CompleteQuestRequest(quest, _currentUser);
-		await http.PostAsJsonAsync($"api/quests/complete", request);
+	  var request = new CompleteQuestRequest(quest, _currentUser);
+	  await http.PostAsJsonAsync($"api/quests/complete", request);
 
-		_currentUser.QuestLog.Quests.RemoveAt(0);
-		_quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
-		_currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
+	  _currentUser.QuestLog.Quests.RemoveAt(0);
+	  _quests = await http.GetFromJsonAsync<Quest[]>("api/quests");
+	  _currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
 
-		progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
-		maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
+	  progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
+	  maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
 
-		StateHasChanged();
+	  StateHasChanged();
 	}
 
 	private async void Update()
 	{
-		Console.WriteLine("Wizard is updating...");
+	  Console.WriteLine("Wizard is updating...");
 		
-		_currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
-		StateHasChanged();
+	  _currentUser = await http.GetFromJsonAsync<Assignee>($"api/assignees/{_currentUser.Id}");
+	  progressValue = _currentUser.TotalExperience - LevelCalculator._levelToExp[_currentUser.Level];
+	  maxProgressValue = LevelCalculator._levelToExp[_currentUser.Level + 1] - LevelCalculator._levelToExp[_currentUser.Level];
+	  StateHasChanged();
 	}
 }

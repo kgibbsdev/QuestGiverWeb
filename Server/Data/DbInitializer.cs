@@ -34,6 +34,9 @@ namespace QuestGiver.Server.Data
                 new QuestLog(),
             };
 
+			//Don't init quotes in database for now
+			//var quotes = new Quote[]{};
+
 			context.Quests.AddRange(quests);
 			context.Assignees.AddRange(assignees);
 			context.QuestLogs.AddRange(questLogs);

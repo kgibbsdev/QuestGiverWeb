@@ -145,43 +145,74 @@ namespace QuestGiver.Server.Controllers
 		[HttpPost("complete")]
 		public async Task<IActionResult> CompleteQuest([FromBody] CompleteQuestRequest request)
 		{
-			var quest = await _context.Quests.FindAsync(request.Quest.Id);
-			if (quest == null)
+			if(!request.Quest.IsOneTime())
 			{
-				return NotFound("Quest not found");
-			}
+                var quest = await _context.Quests.FindAsync(request.Quest.Id);
+                if (quest == null)
+                {
+                    return NotFound("Quest not found");
+                }
 
-			quest.CompletedDate = DateTime.Now;
-			quest.IsCompleted = true;
-			quest.TimesCompleted += 1;
-			quest.IsAssigned = false;
-			quest.QuestLogId = null;
+                quest.CompletedDate = DateTime.Now;
+                quest.IsCompleted = true;
+                quest.TimesCompleted += 1;
+                quest.IsAssigned = false;
+                quest.QuestLogId = null;
 
-			_context.Entry(quest).State = EntityState.Modified;
+                _context.Entry(quest).State = EntityState.Modified;
 
-			var questLog = await _context.QuestLogs.FindAsync(request.Assignee.QuestLog.Id);
-			if (questLog == null)
+                var questLog = await _context.QuestLogs.FindAsync(request.Assignee.QuestLog.Id);
+                if (questLog == null)
+                {
+                    return NotFound("QuestLog not found");
+                }
+
+                questLog.QuestsCompleted += 1;
+                questLog.Quests.Remove(quest);
+
+                _context.Entry(questLog).State = EntityState.Modified;
+
+                var assignee = await _context.Assignees.FindAsync(request.Assignee.Id);
+                if (assignee == null)
+                {
+                    return NotFound("Assignee not found");
+                }
+
+                assignee.TotalExperience += request.Quest.ExperienceForCompletion;
+                assignee.Level = LevelCalculator.CalculateLevel(assignee.TotalExperience);
+
+                _context.Entry(assignee).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+            }
+			else
 			{
-				return NotFound("QuestLog not found");
-			}
+                //This a one-time quest
+                var questLog = await _context.QuestLogs.FindAsync(request.Assignee.QuestLog.Id);
+                if (questLog == null)
+                {
+                    return NotFound("QuestLog not found");
+                }
 
-			questLog.QuestsCompleted += 1;
-			questLog.Quests.Remove(quest);
+				// Nothing to remove from questlog if this is a onetime quest
+				// One time quests should not be put into quest logs
+				questLog.OneTimeQuestsCompleted += 1;
 
-			_context.Entry(questLog).State = EntityState.Modified;
+                _context.Entry(questLog).State = EntityState.Modified;
 
-			var assignee = await _context.Assignees.FindAsync(request.Assignee.Id);
-			if (assignee == null)
-			{
-				return NotFound("Assignee not found");
-			}
+                var assignee = await _context.Assignees.FindAsync(request.Assignee.Id);
+                if (assignee == null)
+                {
+                    return NotFound("Assignee not found");
+                }
 
-			assignee.TotalExperience += request.Quest.ExperienceForCompletion;
-			assignee.Level = LevelCalculator.CalculateLevel(assignee.TotalExperience);
+                assignee.TotalExperience += request.Quest.ExperienceForCompletion;
+                assignee.Level = LevelCalculator.CalculateLevel(assignee.TotalExperience);
 
-			_context.Entry(assignee).State = EntityState.Modified;
+                _context.Entry(assignee).State = EntityState.Modified;
 
-			await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
 
 			return Ok();
 		}

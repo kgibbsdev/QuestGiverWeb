@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -19,13 +20,23 @@ namespace QuestGiver.Shared.Models
         public List<Quest> Quests { get; set; }
         [JsonPropertyName("questsCompleted")]
         public int QuestsCompleted { get; set; }
+        [JsonPropertyName("oneTimeQuestsCompleted")]
+        public int OneTimeQuestsCompleted { get; set; }
         public QuestLog()
         {
             Quests = new List<Quest>();
         }
 
+        /// <summary>
+        /// ONE TIME QUESTS SHOULD NOT BE PUT INTO QUEST LOGS
+        /// </summary>
+        /// <param name="quest"></param>
         public void AddQuest(Quest quest)
         {
+            if(quest.IsOneTime())
+            {
+                throw new ArgumentException("One time quests should not be added to quest logs!");
+            }
             Quests.Add(quest);
         }
 
@@ -33,6 +44,8 @@ namespace QuestGiver.Shared.Models
         {
             return Quests.Count == 0;
         }
+
+        public int GetCompletedQuests() { return QuestsCompleted + OneTimeQuestsCompleted; }
 
         public override string ToString()
         {

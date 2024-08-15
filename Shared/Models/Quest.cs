@@ -63,9 +63,12 @@ namespace QuestGiver.Shared.Models
 
 		[JsonPropertyNameAttribute("intendedAssignee")]
 		public IntendedAssignee IntendedAssignee { get; set; }
-		
-		[JsonConstructorAttribute]
-		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion, bool isActive, IntendedAssignee intendedAssignee)
+
+        [JsonPropertyNameAttribute("oneTime")]
+		public bool OneTime { get; set; }
+
+        [JsonConstructorAttribute]
+		public Quest(string name, string description, int refreshTimeInDays, bool isCompleted, int experienceForCompletion, bool isActive, IntendedAssignee intendedAssignee, bool oneTime = false)
 		{
 			Name = name;
 			Description = description;
@@ -74,6 +77,9 @@ namespace QuestGiver.Shared.Models
 			ExperienceForCompletion = experienceForCompletion;
 			IsActive = isActive;
 			IntendedAssignee = intendedAssignee;
+
+            // If you don't specify OneTime, it should be assume this is a new permanent quest.
+            OneTime = oneTime;
 		}
 
 		public Quest(string name)
@@ -85,6 +91,14 @@ namespace QuestGiver.Shared.Models
 			ExperienceForCompletion = 0;
 			IsActive = true;
 			IntendedAssignee = IntendedAssignee.Anyone;
+
+            // If you don't specify OneTime, it should be assume this is a new permanent quest.
+            OneTime = false;
+		}
+
+		public bool IsOneTime()
+		{
+			return OneTime;
 		}
 	}
 }

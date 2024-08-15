@@ -8,7 +8,7 @@ namespace QuestGiver.Shared.Classes.Utility
 {
     public static class LevelCalculator
     {
-        public static Dictionary<int, int> _levelToExp;
+        public readonly static Dictionary<int, int> _levelToExp;
         static LevelCalculator() 
         {
             _levelToExp = InitLevelList();
@@ -23,17 +23,28 @@ namespace QuestGiver.Shared.Classes.Utility
             var levelList = new Dictionary<int, int>();
             for (int i = 0; i <= 100; i++)
             {
-                var exp = (int)Math.Pow((i / x), y);
+                int exp = (int)Math.Pow((i / x), y);
                 levelList.Add(i, exp);
             }
             return levelList;
         }
+        /// <summary>
+        /// Returns level for exp amount in the level -> exp dictionary.
+        /// Returns 0 if exp amount is negative.
+        /// For values >= 0 returns a positive, nonzero integer
+        /// Max level is 100 - 08/15/2024
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+
 
         public static int CalculateLevel(int exp)
         {
             int level = 0;
             if (exp < 0)
             {
+                // If exp is a weird, unexpected value, just return zero.
+                // The default value for level is 1 as long as the value is zero or above
                 return level;
             }
             

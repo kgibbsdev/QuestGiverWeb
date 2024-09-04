@@ -289,7 +289,7 @@ namespace QuestGiver.Server.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AssignThisQuestToMe([FromBody] Quest quest, [FromRoute] string name)
 		{
-			Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name == name);
+			Assignee assignee = await _context.Assignees.FirstOrDefaultAsync(a => a.Name.ToLower() == name.ToLower());
 			if (assignee != null) {
 
 				if (assignee.QuestLog == null)
